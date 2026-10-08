@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using MVC_Tiraz.Utilities;
 using MVC_Tiraz.Utilities.DBSeeder;
 using TIRAZ.Data;
+using TIRAZ.Data;
+using TIRAZ.Repositories;
 
 namespace MVC_Tiraz
 {
@@ -37,6 +39,10 @@ namespace MVC_Tiraz
             builder.Services.AddTransient<IEmailSender,EmailSender>();
             builder.Services.AddScoped<IDBInitialization, DBInitialization>();
             // OTP
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             var app = builder.Build();
 
