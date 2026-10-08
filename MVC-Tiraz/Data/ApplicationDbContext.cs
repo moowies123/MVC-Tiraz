@@ -11,6 +11,7 @@
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Contains> Contains { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
+        public DbSet<ApplicationUserOtp> applicationUserOtps { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

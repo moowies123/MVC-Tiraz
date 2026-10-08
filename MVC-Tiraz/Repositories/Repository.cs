@@ -1,7 +1,3 @@
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using TIRAZ.Data;
-
 namespace TIRAZ.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
@@ -15,7 +11,7 @@ namespace TIRAZ.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() =>
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate) =>
             await _dbSet.ToListAsync();
 
         public async Task<T?> GetByIdAsync(int id) =>

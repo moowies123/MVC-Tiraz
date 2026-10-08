@@ -36,6 +36,7 @@ namespace MVC_Tiraz
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            builder.Services.AddScoped<IRepository<ApplicationUserOtp>, Repository<ApplicationUserOtp>>();
             builder.Services.AddTransient<IEmailSender,EmailSender>();
             builder.Services.AddScoped<IDBInitialization, DBInitialization>();
             // OTP
@@ -68,7 +69,7 @@ namespace MVC_Tiraz
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{area=Identity}/{controller=Auth}/{action=Register}/{id?}")
+                pattern: "{area=Identity}/{controller=Account}/{action=Register}/{id?}")
                 .WithStaticAssets();
 
             app.Run();
