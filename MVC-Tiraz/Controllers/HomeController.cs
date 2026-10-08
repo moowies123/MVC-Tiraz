@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using MVC_Tiraz.Models;
-using System.Diagnostics;
-
 namespace MVC_Tiraz.Controllers
 {
     public class HomeController : Controller

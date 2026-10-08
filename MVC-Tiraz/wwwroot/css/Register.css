@@ -1,0 +1,346 @@
+:root {
+    --cream: #F7F1DE;
+    --sage: #B0BA99;
+    --brown: #9D6638;
+    --dark: #4E220F;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--sage);
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    position: relative;
+    width: 850px;
+    max-width: 95%;
+    min-height: 760px; /* taller, so there's room for the errors */
+    background: var(--cream);
+    border-radius: 16px;
+    box-shadow: 0 14px 40px rgba(78, 34, 15, 0.35);
+    overflow: hidden;
+}
+
+.form-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+    .form-container form {
+        height: 100%;
+        padding: 20px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: var(--cream);
+        color: var(--dark);
+        overflow-y: auto;
+    }
+
+        .form-container form > *,
+        .form-container .row > div {
+            flex-shrink: 0; /* never squash anything */
+        }
+    /* never squash items */
+
+
+
+    .form-container h1 {
+        margin: 0 0 15px;
+        color: var(--dark);
+        text-align: center;
+    }
+
+    .form-container input {
+        width: 100%;
+        padding: 11px 14px;
+        margin-top: 8px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        background: #ebe3c8;
+        color: var(--dark);
+        outline: none;
+    }
+
+        .form-container input:focus {
+            border-color: var(--brown);
+        }
+
+    .form-container span {
+        display: block;
+        color: #b3261e;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 3px;
+    }
+
+    .form-container a {
+        color: var(--brown);
+        font-size: 13px;
+        margin: 12px 0;
+        text-decoration: none;
+    }
+
+.row {
+    display: flex;
+    gap: 8px;
+}
+
+    .row > div {
+        flex: 1;
+        min-width: 0;
+    }
+
+button {
+    margin-top: 14px;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 25px;
+    background: var(--brown);
+    color: var(--cream);
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+}
+
+    button:hover {
+        background: var(--dark);
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    button.ghost {
+        background: transparent;
+        border: 2px solid var(--cream);
+    }
+
+        button.ghost:hover {
+            background: var(--cream);
+            color: var(--dark);
+        }
+
+/* Login on the left, sign up hidden on the left */
+.sign-in-container {
+    z-index: 2;
+}
+
+.sign-up-container {
+    opacity: 0;
+    z-index: 1;
+}
+
+/* Overlay on the right */
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out;
+    z-index: 100;
+}
+
+.overlay {
+    position: relative;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(to right, var(--brown), var(--dark));
+    color: var(--cream);
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+
+.overlay-panel {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+    transform: translateX(-20%);
+}
+
+.overlay-right {
+    right: 0;
+    transform: translateX(0);
+}
+
+/* Active state (sign up showing) */
+.container.right-panel-active .sign-in-container {
+    transform: translateX(100%);
+}
+
+.container.right-panel-active .sign-up-container {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+}
+
+.container.right-panel-active .overlay-container {
+    transform: translateX(-100%);
+}
+
+.container.right-panel-active .overlay {
+    transform: translateX(50%);
+}
+
+.container.right-panel-active .overlay-left {
+    transform: translateX(0);
+}
+
+.container.right-panel-active .overlay-right {
+    transform: translateX(20%);
+}
+
+/* Mobile: just stack the forms */
+@media (max-width: 700px) {
+    .overlay-container {
+        display: none;
+    }
+
+    .form-container {
+        position: static;
+        width: 100%;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .container {
+        min-height: auto;
+    }
+}
+
+.error-summary {
+    color: #b3261e;
+    font-size: 13px;
+}
+
+    .error-summary ul {
+        margin: 0 0 10px;
+        padding-left: 18px;
+    }
+
+.container .sign-up-container form input {
+    margin-top: 18px !important;
+    padding: 13px 14px !important;
+}
+
+.container .sign-up-container form .row {
+    gap: 12px !important;
+}
+
+.container .sign-up-container form button {
+    margin-top: 26px !important;
+}
+
+.app-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: #F7F1DE;
+    box-shadow: 0 8px 24px rgba(78, 34, 15, 0.35);
+    animation: toast-in 0.4s ease;
+}
+
+.app-toast-success {
+    background: #5f6b45;
+}
+
+.app-toast-error {
+    background: #b3261e;
+}
+
+.app-toast button.app-toast-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+@keyframes toast-in {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+
+    to {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 14px 0 4px;
+}
+
+    .login-options a {
+        margin: 0;
+    }
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--dark);
+    cursor: pointer;
+}
+
+/* undo the global input style (full width, cream box) for the checkbox */
+.form-container .remember input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--brown);
+    cursor: pointer;
+}
+
+/* undo the error-text style from `.form-container span` */
+.form-container .remember span {
+    display: inline;
+    color: var(--dark);
+    font-size: 13px;
+    font-weight: normal;
+    margin: 0;
+}

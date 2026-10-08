@@ -10,7 +10,6 @@
             public int Rate { get; set; }
             public string Comment { get; set; } = string.Empty;
             public ApplicationUser User { get; set; } = null!;
-
             public Product Product { get; set; } = null!;
         }
     }
