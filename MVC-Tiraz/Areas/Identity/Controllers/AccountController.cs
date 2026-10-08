@@ -6,12 +6,14 @@
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IRepository<ApplicationUserOtp> _applicationUserOtpRepository;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOtp> applicationUserOtpRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _applicationUserOtpRepository = applicationUserOtpRepository;
         }
 
         [HttpGet]
@@ -151,13 +153,103 @@
         }
 
         [HttpPost]
-        public IActionResult ForgetPassword(ForgetPasswordVM vm)
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordVM vm)
         {
-            return View();
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+
+            if (user is null)
+            {
+                ModelState.AddModelError("", "Invalid Email");
+                return View(vm);
+            }
+            var otps = await _applicationUserOtpRepository.GetAllAsync(o => o.ApplicationUserId == user.Id);
+            var count = otps.Count(o => (DateTime.Now - o.CreatedDate).TotalHours <= 24);
+            if (count > 5)
+            {
+                ModelState.AddModelError("", "Too many attempts, Try again later");
+                return View(vm);
+            }
+            var otp = new Random().Next(1000, 9999).ToString();
+            var applicationUserOtp = new ApplicationUserOtp(otp, user.Id);
+            await _applicationUserOtpRepository.AddAsync(applicationUserOtp);
+            await _applicationUserOtpRepository.SaveChangesAsync();
+            await _emailSender.SendEmailAsync(
+                user.Email,
+                "Ecommerce forgetpassword email",
+                $"<h1>Use this OTP {otp} to forget your password</h1>"
+                );
+            return RedirectToAction(nameof(VerifyOtp), new { userId = user.Id });
         }
-    
-        
-    
-    
+
+        [HttpGet]
+        public IActionResult VerifyOtp(string userId)
+        {
+            return View(new VerifyOtpVM { UserId = userId});
+        }
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpVM vm)
+        {
+            var user = await _userManager.FindByIdAsync(vm.UserId);
+
+            if (user is null)
+            {
+                ModelState.AddModelError("", "Invalid User");
+                return View(vm);
+            }
+
+            var otps = await _applicationUserOtpRepository.GetAllAsync(o =>
+                o.ApplicationUserId == user.Id.ToString() &&
+                o.IsValid == true &&
+                o.ValidTo >= DateTime.Now
+                );
+
+            var applicationUserOtp = otps.OrderByDescending(o => o.CreatedDate).FirstOrDefault();
+
+            if (applicationUserOtp == null || applicationUserOtp.OTP != vm.OTP)
+            {
+                ModelState.AddModelError("", " Invalid/Expired OTP");
+                return View(vm);
+            }
+            applicationUserOtp.IsValid = false;
+
+            await _applicationUserOtpRepository.SaveChangesAsync();
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return RedirectToAction(nameof(ResetPassword), new { userId = user.Id, token });
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            return View(new ResetPasswordVM { UserId = userId, Token = token });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM vm)
+        {
+            var user = await _userManager.FindByIdAsync(vm.UserId);
+
+            if (user is null)
+            {
+                ModelState.AddModelError("", "Invalid User");
+                return View(vm);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, vm.Token, vm.Password);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                return View(vm);
+            }
+
+            TempData["Successful_Notification"] = "Password reset successfully";
+
+            return RedirectToAction(nameof(Login));
+        }
     }
 }

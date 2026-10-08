@@ -1,0 +1,37 @@
+﻿@model MVC_Tiraz.ViewModels.VerifyOtpVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiraz - Verify Code</title>
+    <link rel="stylesheet" href="/css/ForgetPassword.css?v=2" />
+</head>
+<body>
+    <partial name="_Toast" />
+
+    <div class="auth-card">
+        <form asp-action="VerifyOtp" method="post">
+            <h1>Verify Code</h1>
+            <p class="subtitle">Enter the 6-digit code we sent to your email.</p>
+
+            <div asp-validation-summary="ModelOnly" class="error-summary"></div>
+
+            <input type="hidden" asp-for="UserId" />
+
+            <input asp-for="OTP" class="otp-input" placeholder="------"
+                   maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+            <span asp-validation-for="OTP"></span>
+
+            <button type="submit">Verify</button>
+
+            <a asp-action="Register" class="back-btn">Back to sign in</a>
+        </form>
+    </div>
+
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>
