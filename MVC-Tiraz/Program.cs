@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using TIRAZ.Data;
+using TIRAZ.Repositories;
+
 namespace MVC_Tiraz
 {
     public class Program
@@ -8,6 +12,11 @@ namespace MVC_Tiraz
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             var app = builder.Build();
 
