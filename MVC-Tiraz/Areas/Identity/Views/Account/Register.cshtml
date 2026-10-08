@@ -1,0 +1,110 @@
+﻿@model MVC_Tiraz.ViewModels.RegisterVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiraz - Login / Sign up</title>
+    <link rel="stylesheet" href="~/css/Register.css" />
+</head>
+<body>
+    <partial name="_Toast" />
+    <div class="container @(!ViewData.ModelState.IsValid ? "right-panel-active" : "")" id="container">
+        <!-- SIGN UP -->
+        <div class="form-container sign-up-container">
+            <form asp-action="Register" method="post">
+
+                <h1>Create Account</h1>
+
+                <input asp-for="UserName" placeholder="Username" />
+                <span asp-validation-for="UserName"></span>
+
+                <div class="row">
+                    <div>
+                        <input asp-for="FirstName" placeholder="First name" />
+                        <span asp-validation-for="FirstName"></span>
+                    </div>
+                    <div>
+                        <input asp-for="LastName" placeholder="Last name" />
+                        <span asp-validation-for="LastName"></span>
+                    </div>
+                </div>
+
+                <input asp-for="Email" placeholder="Email" />
+                <span asp-validation-for="Email"></span>
+
+                <input asp-for="Phone" placeholder="Phone (01xxxxxxxxx)" />
+                <span asp-validation-for="Phone"></span>
+
+                <input asp-for="Address" placeholder="Address" />
+                <span asp-validation-for="Address"></span>
+
+                <div class="row">
+                    <div>
+                        <input asp-for="Password" placeholder="Password" />
+                        <span asp-validation-for="Password"></span>
+                    </div>
+                    <div>
+                        <input asp-for="ConfirmPassword" placeholder="Confirm" />
+                        <span asp-validation-for="ConfirmPassword"></span>
+                    </div>
+                </div>
+
+                <button type="submit" value="Register" class="btn btn-primary">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="form-container sign-in-container">
+            <form asp-action="Login" method="post">
+                <h1>Sign In</h1>
+                <input type="email" name="Email" placeholder="Email" />
+                <input type="password" name="Password" placeholder="Password" />
+                <div class="login-options">
+                    <label class="remember">
+                        <input type="checkbox" name="RememberMe" value="true" />
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#">Forgot your password?</a>
+                </div>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+
+        <!-- SLIDING OVERLAY -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Already have an account? Sign in to continue.</p>
+                    <button class="ghost" id="signIn" type="button">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>New to Tiraz? Create an account and start with us.</p>
+                    <button class="ghost" id="signUp" type="button">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
+    <script>
+            const container = document.getElementById("container");
+            document.getElementById("signUp").onclick = () => container.classList.add("right-panel-active");
+            document.getElementById("signIn").onclick = () => container.classList.remove("right-panel-active");
+    </script>
+    <partial name="_Toast" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const toastEl = document.getElementById("appToast");
+        if (toastEl) new bootstrap.Toast(toastEl).show();
+    </script>
+</body>
+</html>
+    <partial name="_ValidationScriptsPartial" />

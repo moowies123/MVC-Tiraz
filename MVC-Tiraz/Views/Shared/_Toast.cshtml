@@ -1,0 +1,14 @@
+﻿@if (TempData["Success"] != null || TempData["Error"] != null)
+{
+    var isSuccess = TempData["Success"] != null;
+    var message = isSuccess ? TempData["Success"] : TempData["Error"];
+
+    <div class="app-toast @(isSuccess ? "app-toast-success" : "app-toast-error")" id="appToast">
+        <span>@message</span>
+        <button type="button" class="app-toast-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+
+    <script>
+        setTimeout(() => document.getElementById("appToast")?.remove(), 4000);
+    </script>
+}
