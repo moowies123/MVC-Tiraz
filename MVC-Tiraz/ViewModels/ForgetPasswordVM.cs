@@ -2,7 +2,7 @@
 {
     public class ForgetPasswordVM
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [DataType(DataType.EmailAddress), EmailAddress]
         public string Email { get; set; }
