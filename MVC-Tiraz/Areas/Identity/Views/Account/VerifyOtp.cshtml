@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tiraz - Verify Code</title>
-    <link rel="stylesheet" href="/css/ForgetPassword.css?v=2" />
+    <link rel="stylesheet" href="/css/ForgetPassword.css?v=3" />
 </head>
 <body>
     <partial name="_Toast" />
@@ -21,17 +21,70 @@
             <div asp-validation-summary="ModelOnly" class="error-summary"></div>
 
             <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="OTP" />
 
-            <input asp-for="OTP" class="otp-input" placeholder="------"
-                   maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+            <label class="otp-label">Verification code</label>
+            <div class="otp-boxes">
+                <input class="otp-box" type="text" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1" />
+                <input class="otp-box" type="text" inputmode="numeric" aria-label="Digit 2" />
+                <input class="otp-box" type="text" inputmode="numeric" aria-label="Digit 3" />
+                <input class="otp-box" type="text" inputmode="numeric" aria-label="Digit 4" />
+                <input class="otp-box" type="text" inputmode="numeric" aria-label="Digit 5" />
+                <input class="otp-box" type="text" inputmode="numeric" aria-label="Digit 6" />
+            </div>
             <span asp-validation-for="OTP"></span>
 
-            <button type="submit">Verify</button>
+            <button type="submit" href="/Identity/Account/ResetPassword">Verify</button>
 
-            <a asp-action="Register" class="back-btn">Back to sign in</a>
+            <a asp-action="Login" class="back-btn">Back to sign in</a>
         </form>
     </div>
 
     <partial name="_ValidationScriptsPartial" />
+    <script>
+            const boxes = Array.from(document.querySelectorAll(".otp-box"));
+            const hidden = document.getElementById("OTP");
+
+            function sync() {
+                hidden.value = boxes.map(b => b.value).join("");
+            }
+
+            function fill(digits, start) {
+                digits.split("").forEach((d, k) => {
+                    if (boxes[start + k]) boxes[start + k].value = d;
+                });
+                boxes[Math.min(start + digits.length, 5)].focus();
+                sync();
+            }
+
+            boxes.forEach((box, i) => {
+                box.addEventListener("input", () => {
+                    const digits = box.value.replace(/\D/g, "");
+                    box.value = "";
+                    if (digits) fill(digits.slice(0, 6 - i), i);
+                    else sync();
+                });
+
+                box.addEventListener("keydown", e => {
+                    if (e.key === "Backspace" && !box.value && i > 0) {
+                        boxes[i - 1].value = "";
+                        boxes[i - 1].focus();
+                        sync();
+                    }
+                    if (e.key === "ArrowLeft" && i > 0) boxes[i - 1].focus();
+                    if (e.key === "ArrowRight" && i < 5) boxes[i + 1].focus();
+                });
+
+                box.addEventListener("paste", e => {
+                    e.preventDefault();
+                    const text = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+                    if (text) fill(text, 0);
+                });
+
+                box.addEventListener("focus", () => box.select());
+            });
+
+            boxes[0].focus();
+    </script>
 </body>
 </html>

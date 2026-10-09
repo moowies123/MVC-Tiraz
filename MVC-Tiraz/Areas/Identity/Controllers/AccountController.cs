@@ -159,32 +159,63 @@
 
             if (user is null)
             {
-                ModelState.AddModelError("", "Invalid Email");
+                ModelState.AddModelError(nameof(vm.Email), "Invalid Email");
                 return View(vm);
             }
+
+
+
             var otps = await _applicationUserOtpRepository.GetAllAsync(o => o.ApplicationUserId == user.Id);
+
             var count = otps.Count(o => (DateTime.Now - o.CreatedDate).TotalHours <= 24);
             if (count > 5)
             {
-                ModelState.AddModelError("", "Too many attempts, Try again later");
+                ModelState.AddModelError(nameof(vm.Email), "Too many attempts, Try again later");
                 return View(vm);
             }
-            var otp = new Random().Next(1000, 9999).ToString();
-            var applicationUserOtp = new ApplicationUserOtp(otp, user.Id);
-            await _applicationUserOtpRepository.AddAsync(applicationUserOtp);
+
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            var UserOtp = new ApplicationUserOtp()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationUserId = user.Id,
+                OTP = otp
+            };
+
+            await _applicationUserOtpRepository.AddAsync(UserOtp);
+
             await _applicationUserOtpRepository.SaveChangesAsync();
-            await _emailSender.SendEmailAsync(
-                user.Email,
-                "Ecommerce forgetpassword email",
-                $"<h1>Use this OTP {otp} to forget your password</h1>"
-                );
+
+            var body = $$"""
+                <div style="background-color:#B0BA99; padding:30px 0; font-family:Arial, sans-serif;">
+                  <div style="max-width:460px; margin:auto; background-color:#F7F1DE; border-radius:12px; padding:30px; text-align:center;">
+                    <h1 style="color:#4E220F; margin:0 0 20px;">Tiraz</h1>
+                    <p style="font-size:16px; color:#4E220F; line-height:1.6; margin:0 0 20px;">
+                      Hi {{user.FirstName}}, use this code to reset your password:
+                    </p>
+                    <p style="font-size:34px; font-weight:bold; letter-spacing:10px; color:#F7F1DE; background-color:#9D6638; border-radius:8px; padding:14px 0; margin:0 0 20px;">
+                      {{otp}}
+                    </p>
+                    <p style="font-size:13px; color:#9D6638; line-height:1.5; margin:0;">
+                      This code expires in 10 minutes.<br>
+                      If you didn't request it, you can safely ignore this email.
+                    </p>
+                  </div>
+                </div>
+                """;
+
+            await _emailSender.SendEmailAsync(user.Email, "Your Tiraz verification code", body);
+
+            TempData["Success"] = "OTP sent successfully!";
+
             return RedirectToAction(nameof(VerifyOtp), new { userId = user.Id });
         }
 
         [HttpGet]
         public IActionResult VerifyOtp(string userId)
         {
-            return View(new VerifyOtpVM { UserId = userId});
+            return View(new VerifyOtpVM { UserId = userId });
         }
         [HttpPost]
         public async Task<IActionResult> VerifyOtp(VerifyOtpVM vm)
@@ -216,23 +247,29 @@
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
+            TempData["Success"] = "OTP verified successfully!";
+
             return RedirectToAction(nameof(ResetPassword), new { userId = user.Id, token });
         }
 
         [HttpGet]
-        public IActionResult ResetPassword(string userId, string token)
+        public async Task<IActionResult> ResetPassword(string userId, string token)
         {
-            return View(new ResetPasswordVM { UserId = userId, Token = token });
+            var user = await _userManager.FindByIdAsync(userId);
+
+            return View(new ResetPasswordVM { UserId = userId, Token = token, Email = user?.Email });
         }
 
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordVM vm)
         {
+            if (!ModelState.IsValid) return View(vm);
+
             var user = await _userManager.FindByIdAsync(vm.UserId);
 
             if (user is null)
             {
-                ModelState.AddModelError("", "Invalid User");
+                ModelState.AddModelError("", $"Invalid User");
                 return View(vm);
             }
 
@@ -249,7 +286,7 @@
 
             TempData["Successful_Notification"] = "Password reset successfully";
 
-            return RedirectToAction(nameof(Login));
+            return RedirectToAction("Login");
         }
     }
 }
