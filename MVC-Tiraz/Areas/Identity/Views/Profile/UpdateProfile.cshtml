@@ -1,0 +1,69 @@
+@model MVC_Tiraz.ViewModels.ApplicationUserVM
+@{
+    Layout = null;
+    ViewData["Active"] = "profile";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiraz - Update Profile</title>
+    <link rel="stylesheet" href="/css/Profile.css?v=1" />
+</head>
+<body>
+    <partial name="_Toast" />
+
+    <div class="profile-layout">
+        <partial name="_ProfileSidebar" />
+
+        <main class="content">
+            <div class="content-inner">
+                <div class="page-header">
+                    <h1>Update Profile</h1>
+                    <p>Change your personal details and save them.</p>
+                </div>
+
+                <div class="card">
+                    <form asp-action="UpdateProfile" method="post" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="error-summary"></div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label asp-for="UserName">User Name</label>
+                                <input asp-for="UserName" placeholder="User name" autocomplete="username" />
+                                <span asp-validation-for="UserName"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Email">Email</label>
+                                <input asp-for="Email" placeholder="name@example.com" />
+                                <span asp-validation-for="Email"></span>
+                            </div>
+
+                            <div class="form-group full">
+                                <label asp-for="PhoneNumber">Phone Number</label>
+                                <input asp-for="PhoneNumber" placeholder="01xxxxxxxxx" inputmode="numeric" />
+                                <span asp-validation-for="PhoneNumber"></span>
+                            </div>
+
+                            <div class="form-group full">
+                                <label asp-for="Address">Address</label>
+                                <textarea asp-for="Address" rows="3" placeholder="Street, city, country"></textarea>
+                                <span asp-validation-for="Address"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="action-btn action-primary">Save Changes</button>
+                            <a asp-action="UserInfo" class="action-btn action-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

@@ -4,20 +4,20 @@
     {
         [Required(ErrorMessage = "User Name is Required")]
         [MaxLength(15)]
-        public required string UserName { get; set; }
+        public string UserName { get; set; }
 
         [Required(ErrorMessage = "First Name is Required")]
         [RegularExpression(@"^[A-Za-z\u0600-\u06FF ]+$", ErrorMessage = "Letters only")]
         [MaxLength(15)]
-        public required string FirstName { get; set; }
+        public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Last Name is Required")]
         [RegularExpression(@"^[A-Za-z\u0600-\u06FF ]+$", ErrorMessage = "Letters only")]
         [MaxLength(15)]
-        public required string LastName { get; set; }
+        public string LastName { get; set; }
 
         [Required(ErrorMessage = "Address is required")]
-        public required string Address { get; set; }
+        public string Address { get; set; }
 
         [DataType(DataType.EmailAddress), EmailAddress(ErrorMessage = "Enter a valid email")]
         public required string Email { get; set; }

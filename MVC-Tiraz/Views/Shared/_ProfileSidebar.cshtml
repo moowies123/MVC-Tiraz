@@ -1,0 +1,20 @@
+@{
+    var active = ViewData["Active"] as string;
+}
+
+<aside class="sidebar">
+    <div class="brand">Tiraz</div>
+
+    <details class="menu" open>
+        <summary>Profile Control</summary>
+
+        <nav class="menu-links">
+            <a asp-action="UserInfo" class="@(active == "info" ? "active" : "")">My Info</a>
+            <a asp-action="UpdateProfile" class="@(active == "profile" ? "active" : "")">Update Profile</a>
+            <a asp-action="UpdatePassword" class="@(active == "password" ? "active" : "")">Update Password</a>
+               <form asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit">Log out</button>
+                </form>
+        </nav>
+    </details>
+</aside>

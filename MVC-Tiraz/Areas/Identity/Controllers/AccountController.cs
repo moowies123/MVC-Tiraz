@@ -1,4 +1,6 @@
-﻿namespace MVC_Tiraz.Areas.Identity.Controllers
+﻿using System.Security.Claims;
+
+namespace MVC_Tiraz.Areas.Identity.Controllers
 {
     [Area("Identity")]
     public class AccountController : Controller
@@ -37,6 +39,12 @@
                 PhoneNumber = vm.Phone,
             };
 
+            if (await _userManager.FindByEmailAsync(vm.Email) != null)
+            {
+                ModelState.AddModelError(nameof(vm.Email), "This email is already registered");
+                return View(vm);
+            }
+
             var result = await _userManager.CreateAsync(user, vm.Password);
 
             if (!result.Succeeded)
@@ -44,6 +52,7 @@
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
+                    return View(vm);
                 }
             }
             else TempData["Success"] = "Account created successfully!";
@@ -287,6 +296,112 @@
             TempData["Successful_Notification"] = "Password reset successfully";
 
             return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                TempData["Error"] = $"Error from external provider: {remoteError}";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+
+            if (info == null)
+            {
+                TempData["Error"] = "Couldn't read your Google login info. Try again.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+
+            if (signInResult.Succeeded)
+            {
+                var linkedUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+                if (linkedUser != null)
+                    return await RedirectByRoleAsync(linkedUser);
+            }
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName);
+            var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname);
+            var address = info.Principal.FindFirstValue(ClaimTypes.StreetAddress);
+            var username = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            if (email != null)
+            {
+                TempData["Error"] = "Google didn't send an email address.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    FirstName = firstName ?? username ?? "User",
+                    LastName = lastName ?? "",
+                    UserName = email,
+                    Address = address ?? "",
+                    Email = email,
+                    EmailConfirmed = true
+                };
+
+                var createUserResult = await _userManager.CreateAsync(user);
+
+                if (!createUserResult.Succeeded)
+                {
+                    TempData["Error"] = string.Join(" ", createUserResult.Errors.Select(e => e.Description));
+                    return RedirectToAction(nameof(Login));
+                }
+
+                await _userManager.AddToRoleAsync(user, CD.CUSTOMER_ROLE);
+            }
+
+            var existingLogins = await _userManager.GetLoginsAsync(user);
+
+            var hasGoogleLogin = existingLogins.Any(l => l.LoginProvider == info.LoginProvider);
+
+            if (!hasGoogleLogin)
+            {
+                var addLoginResult = await _userManager.AddLoginAsync(user, info);
+
+                if (!addLoginResult.Succeeded)
+                {
+                    TempData["Error"] = "Error linking your Google account.";
+                    return RedirectToAction(nameof(Login));
+                }
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            TempData["Success"] = "Welcome!";
+
+            return await RedirectByRoleAsync(user);
+        }
+
+        private async Task<IActionResult> RedirectByRoleAsync(ApplicationUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Contains(CD.SUPER_ADMIN_ROLE) || roles.Contains(CD.ADMIN_ROLE) || roles.Contains(CD.EMPLOYEE_ROLE))
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+
+            return RedirectToAction("Index", "Home", new { area = "Customer" });
         }
     }
 }
