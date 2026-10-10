@@ -1,0 +1,78 @@
+@model MVC_Tiraz.ViewModels.ApplicationUserVM
+@{
+    Layout = null;
+    ViewData["Active"] = "info";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiraz - My Profile</title>
+    <link rel="stylesheet" href="/css/Profile.css?v=1" />
+</head>
+<body>
+    <partial name="_Toast" />
+
+    <div class="profile-layout">
+        <partial name="_ProfileSidebar" />
+
+        <main class="content">
+            <div class="content-inner">
+                <div class="page-header">
+                    <h1>My Profile</h1>
+                    <p>Your account details at a glance.</p>
+                </div>
+
+                <div class="card">
+                    <div class="profile-hero">
+                        <div class="avatar">@(string.IsNullOrEmpty(Model.UserName) ? "?" : Model.UserName[0].ToString().ToUpper())</div>
+                        <div>
+                            <h2>@Model.UserName</h2>
+                            <span>@(string.IsNullOrWhiteSpace(Model.Email) ? "No email set" : Model.Email)</span>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">User Name</span>
+                            <span class="info-value">@Model.UserName</span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value @(string.IsNullOrWhiteSpace(Model.Email) ? "empty" : "")">
+                                @(string.IsNullOrWhiteSpace(Model.Email) ? "Not set" : Model.Email)
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Phone Number</span>
+                            <span class="info-value @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "empty" : "")">
+                                @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not set" : Model.PhoneNumber)
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Password</span>
+                            <span class="info-value">••••••••</span>
+                        </div>
+
+                        <div class="info-item full">
+                            <span class="info-label">Address</span>
+                            <span class="info-value @(string.IsNullOrWhiteSpace(Model.Address) ? "empty" : "")">
+                                @(string.IsNullOrWhiteSpace(Model.Address) ? "Not set" : Model.Address)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="UpdateProfile" class="action-btn action-primary">Edit Profile</a>
+                        <a asp-action="UpdatePassword" class="action-btn action-outline">Change Password</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

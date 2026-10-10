@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    var providers = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+}
+
+@if (providers.Any())
+{
+    <h4 class="external-title">Use different service for log in:</h4>
+
+    <div class="external-row">
+        @foreach (var provider in providers)
+        {
+            <button type="submit" name="provider" value="@provider.Name"
+                    formaction="@Url.Action("ExternalLogin", "Account", new { area = "Identity", returnUrl = ViewData["ReturnUrl"] })"
+                    formmethod="post" formnovalidate class="external-btn"
+                    title="Continue with @provider.DisplayName" aria-label="Continue with @provider.DisplayName">
+                <i class="bi bi-google"></i>
+            </button>
+        }
+    </div>
+}

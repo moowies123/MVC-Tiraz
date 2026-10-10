@@ -344,3 +344,36 @@ button {
     font-weight: normal;
     margin: 0;
 }
+
+.form-container .external-title {
+    margin: 18px 0 5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #cfc4a1;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+.form-container .external-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-container button.external-btn {
+    width: 52px;
+    height: 52px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 30px; 
+    background: var(--brown);
+    color: var(--cream);
+    font-size: 22px;
+    letter-spacing: normal;
+}
+
+    .form-container button.external-btn:hover {
+        background: var(--dark);
+    }
