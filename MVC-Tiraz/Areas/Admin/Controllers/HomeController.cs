@@ -1,14 +1,15 @@
 ﻿namespace MVC_Tiraz.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class DashBoardController : Controller
+    [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE},{CD.EMPLOYEE_ROLE}")]
+    public class HomeController : Controller
     {
         private readonly IRepository<Order> _orderRepository;
         private readonly IRepository<Contains> _containsRepository;
         private readonly IRepository<Product> _productRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public DashBoardController(
+        public HomeController(
             IRepository<Order> orderRepository,
             IRepository<Product> productRepository,
             UserManager<ApplicationUser> userManager,
@@ -42,6 +43,13 @@
             };
 
             return View(vm);
+        }
+
+        [AllowAnonymous]
+        public IActionResult NotFoundPage()
+        {
+            Response.StatusCode = 404;
+            return View();
         }
     }
 }
