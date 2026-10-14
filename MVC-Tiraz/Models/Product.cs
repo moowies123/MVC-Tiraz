@@ -16,6 +16,7 @@ namespace MVC_Tiraz.Models
             public string Description { get; set; } = string.Empty;
             public int StockQuantity { get; set; }
             public string Size { get; set; } = string.Empty;
+            public bool Status { get; set; } = true;
 
             [ForeignKey(nameof(Category))]
             public int CategoryId { get; set; }
