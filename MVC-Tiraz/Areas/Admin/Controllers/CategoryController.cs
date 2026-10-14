@@ -1,4 +1,6 @@
-﻿namespace MVC_Tiraz.Areas.Admin.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+using MVC_Tiraz.Models.TIRAZ.Models;
+namespace MVC_Tiraz.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE}  ,{CD.EMPLOYEE_ROLE} ")]
@@ -14,7 +16,7 @@
         {
             var categories = await _categoryRepository.GetAllAsync();
 
-            return View(categories.AsEnumerable());
+            return View((categories.AsEnumerable()));
         }
 
         [HttpGet]
@@ -29,7 +31,7 @@
         {
             if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("", "invalid Data");
+                TempData["Error_Notification"] = "Invalid Data";
                 return View(category);
             }
 
@@ -47,7 +49,6 @@
         public async Task<IActionResult> Update(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
-            
             if (category == null)
             {
                 return RedirectToAction("NotFoundPage", "Home");
@@ -58,6 +59,7 @@
 
         [HttpPost]
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE} ")]
+
         public async Task<IActionResult> Update(Category category)
         {
             _categoryRepository.Update(category);
@@ -83,5 +85,7 @@
 
             return RedirectToAction(nameof(Index));
         }
+
+
     }
 }
