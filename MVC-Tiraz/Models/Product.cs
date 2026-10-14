@@ -19,6 +19,7 @@ namespace MVC_Tiraz.Models
             [NotMapped]
             public int SalesCount { get; set; }
             public string Size { get; set; } = string.Empty;
+            public bool Status { get; set; } = true;
 
             [ForeignKey(nameof(Category))]
             public int CategoryId { get; set; }

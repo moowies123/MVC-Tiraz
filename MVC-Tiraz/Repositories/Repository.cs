@@ -11,8 +11,10 @@ namespace TIRAZ.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate) =>
-            await _dbSet.ToListAsync();
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null) =>
+          predicate == null
+          ? await _dbSet.ToListAsync()
+          : await _dbSet.Where(predicate).ToListAsync();
 
         public async Task<T?> GetByIdAsync(int id) =>
             await _dbSet.FindAsync(id);
