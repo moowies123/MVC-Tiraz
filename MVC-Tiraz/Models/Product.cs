@@ -15,6 +15,9 @@ namespace MVC_Tiraz.Models
             public string Image { get; set; } = string.Empty;
             public string Description { get; set; } = string.Empty;
             public int StockQuantity { get; set; }
+
+            [NotMapped]
+            public int SalesCount { get; set; }
             public string Size { get; set; } = string.Empty;
             public bool Status { get; set; } = true;
 

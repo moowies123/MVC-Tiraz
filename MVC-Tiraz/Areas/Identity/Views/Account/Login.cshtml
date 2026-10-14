@@ -1,0 +1,195 @@
+﻿@model MVC_Tiraz.ViewModels.LoginVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiraz - Sign In</title>
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: #fff;
+                color: #212529;
+                font-family: Arial, sans-serif;
+            }
+
+            .box {
+                max-width: 380px;
+                margin: 60px auto;
+                padding: 0 20px;
+            }
+
+            h1 {
+                margin: 0 0 24px;
+                font-size: 26px;
+                text-align: center;
+            }
+
+            .field {
+                margin-bottom: 16px;
+            }
+
+                .field label {
+                    display: block;
+                    margin-bottom: 6px;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+
+                .field input {
+                    width: 100%;
+                    padding: 10px 12px;
+                    border: 1px solid #ced4da;
+                    border-radius: 6px;
+                    font-size: 15px;
+                }
+
+                    .field input:focus {
+                        outline: none;
+                        border-color: #0d6efd;
+                        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+                    }
+
+                    .field input.input-validation-error {
+                        border-color: #dc3545;
+                    }
+
+                .field .field-validation-error {
+                    display: block;
+                    margin-top: 5px;
+                    color: #dc3545;
+                    font-size: 13px;
+                }
+
+            .summary {
+                margin-bottom: 16px;
+                color: #dc3545;
+                font-size: 14px;
+            }
+
+                .summary ul {
+                    margin: 0;
+                    padding-left: 18px;
+                }
+
+            .row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .check {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                cursor: pointer;
+            }
+
+            a {
+                color: #0d6efd;
+                text-decoration: none;
+            }
+
+                a:hover {
+                    text-decoration: underline;
+                }
+
+            button {
+                width: 100%;
+                padding: 11px;
+                border: none;
+                border-radius: 6px;
+                background: #0d6efd;
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+                button:hover {
+                    background: #0b5ed7;
+                }
+
+            .switch {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            /* toast (messages set with TempData) */
+            .app-toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                color: #fff;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            }
+
+            .app-toast-success {
+                background: #198754;
+            }
+
+            .app-toast-error {
+                background: #dc3545;
+            }
+
+            .app-toast button.app-toast-close {
+                width: auto;
+                margin: 0;
+                padding: 0;
+                background: none;
+                color: inherit;
+                font-size: 20px;
+            }
+    </style>
+</head>
+<body>
+    <partial name="_Toast" />
+
+    <div class="box">
+        <h1>Sign In</h1>
+
+        <form asp-action="Login" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="summary"></div>
+
+            <div class="field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" placeholder="name@example.com" autocomplete="username" />
+                <span asp-validation-for="Email"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" placeholder="Password" autocomplete="current-password" />
+                <span asp-validation-for="Password"></span>
+            </div>
+
+            <div class="row">
+                <label class="check"><input asp-for="RememberMe" /> Remember me</label>
+                <a asp-action="ForgetPassword">Forgot your password?</a>
+            </div>
+
+            <button type="submit">Sign In</button>
+        </form>
+
+        <p class="switch">Don't have an account? <a asp-action="Register">Sign up</a></p>
+    </div>
+
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

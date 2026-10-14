@@ -9,12 +9,10 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\css\ForgetPassword.css" />
-    <Content Remove="wwwroot\css\Register.css" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\css\ForgetPassword.css" />
-    <None Include="wwwroot\css\Register.css" />
   </ItemGroup>
 
   <ItemGroup>

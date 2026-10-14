@@ -120,7 +120,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
             if (User.Identity?.IsAuthenticated == true)
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            return View("Register");
+            return View();
         }
 
         [HttpPost]
