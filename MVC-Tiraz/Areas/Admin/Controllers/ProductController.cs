@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MVC_Tiraz.Models.TIRAZ.Models;
-
-namespace MVC_Tiraz.Areas.Admin
+﻿namespace MVC_Tiraz.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE} , {CD.EMPLOYEE_ROLE}")]

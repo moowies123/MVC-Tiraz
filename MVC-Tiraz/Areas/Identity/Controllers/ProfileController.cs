@@ -91,12 +91,5 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
                 return RedirectToAction(nameof(UserInfo));
             }
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Login");
-        }
     }
 }

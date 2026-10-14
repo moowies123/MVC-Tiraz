@@ -67,15 +67,22 @@ namespace MVC_Tiraz
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
+
             app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=DashBoard}/{id?}");
+
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{area=Admin}/{controller=DashBoard}/{action=DashBoard}/{id?}")
+                pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
             app.Run();
