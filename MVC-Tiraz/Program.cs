@@ -45,12 +45,11 @@ namespace MVC_Tiraz
                 opt.SignInScheme = IdentityConstants.ExternalScheme;
             });
 
-            builder.Services.AddScoped<IRepository<ApplicationUserOtp>, Repository<ApplicationUserOtp>>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IDBInitialization, DBInitialization>();
-            // OTP
 
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             var app = builder.Build();
 
@@ -76,7 +75,7 @@ namespace MVC_Tiraz
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{area=Identity}/{controller=Account}/{action=Register}/{id?}")
+                pattern: "{area=Admin}/{controller=DashBoard}/{action=DashBoard}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

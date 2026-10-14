@@ -1,0 +1,110 @@
+﻿@model MVC_Tiraz.ViewModels.DashboardVM
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Summary cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted">Total Sales</div>
+                    <div class="fs-3 fw-bold">@Model.TotalSales.ToString("C0")</div>
+                </div>
+                <i class="bi bi-cash-stack fs-1 text-success"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted">Total Quantity Sold</div>
+                    <div class="fs-3 fw-bold">@Model.TotalSold</div>
+                </div>
+                <i class="bi bi-box-seam fs-1 text-primary"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted">Visitors</div>
+                    <div class="fs-3 fw-bold">@Model.TotalVisitors</div>
+                </div>
+                <i class="bi bi-people fs-1 text-warning"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Chart -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold">Sales by Product</div>
+            <div class="card-body">
+                <canvas id="salesChart" height="130"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold">Product Details</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Product)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.StockQuantity</td>
+                                <td>@item.SalesCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Product.Select(p => p.Name)));
+        const sales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Product.Select(p => p.SalesCount * p.Price)));
+
+        new Chart(document.getElementById('salesChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Sales',
+                    data: sales,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+}

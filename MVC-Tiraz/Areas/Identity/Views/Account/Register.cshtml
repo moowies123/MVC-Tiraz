@@ -7,108 +7,206 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tiraz - Login / Sign up</title>
-    <link rel="stylesheet" href="~/css/Register.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <title>Tiraz - Sign Up</title>
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: #fff;
+                color: #212529;
+                font-family: Arial, sans-serif;
+            }
+
+            .box {
+                max-width: 380px;
+                margin: 40px auto;
+                padding: 0 20px;
+            }
+
+            h1 {
+                margin: 0 0 24px;
+                font-size: 26px;
+                text-align: center;
+            }
+
+            .field {
+                margin-bottom: 16px;
+            }
+
+                .field label {
+                    display: block;
+                    margin-bottom: 6px;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+
+                .field input {
+                    width: 100%;
+                    padding: 10px 12px;
+                    border: 1px solid #ced4da;
+                    border-radius: 6px;
+                    font-size: 15px;
+                }
+
+                    .field input:focus {
+                        outline: none;
+                        border-color: #0d6efd;
+                        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+                    }
+
+                    .field input.input-validation-error {
+                        border-color: #dc3545;
+                    }
+
+                .field .field-validation-error {
+                    display: block;
+                    margin-top: 5px;
+                    color: #dc3545;
+                    font-size: 13px;
+                }
+
+            .summary {
+                margin-bottom: 16px;
+                color: #dc3545;
+                font-size: 14px;
+            }
+
+                .summary ul {
+                    margin: 0;
+                    padding-left: 18px;
+                }
+
+            a {
+                color: #0d6efd;
+                text-decoration: none;
+            }
+
+                a:hover {
+                    text-decoration: underline;
+                }
+
+            button {
+                width: 100%;
+                margin-top: 8px;
+                padding: 11px;
+                border: none;
+                border-radius: 6px;
+                background: #0d6efd;
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+                button:hover {
+                    background: #0b5ed7;
+                }
+
+            .switch {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            /* toast (messages set with TempData) */
+            .app-toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                color: #fff;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            }
+
+            .app-toast-success {
+                background: #198754;
+            }
+
+            .app-toast-error {
+                background: #dc3545;
+            }
+
+            .app-toast button.app-toast-close {
+                width: auto;
+                margin: 0;
+                padding: 0;
+                background: none;
+                color: inherit;
+                font-size: 20px;
+            }
+    </style>
 </head>
 <body>
     <partial name="_Toast" />
 
-    <div class="container @(!ViewData.ModelState.IsValid ? "right-panel-active" : "")" id="container">
-        <!-- SIGN UP -->
-        <div class="form-container sign-up-container">
-            <form asp-action="Register" method="post">
+    <div class="box">
+        <h1>Create Account</h1>
 
-                <h1>Create Account</h1>
+        <form asp-action="Register" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="summary"></div>
 
-                <input asp-for="UserName" placeholder="Username" />
+            <div class="field">
+                <label asp-for="UserName">User Name</label>
+                <input asp-for="UserName" placeholder="User name" autocomplete="username" />
                 <span asp-validation-for="UserName"></span>
+            </div>
 
-                <div class="row">
-                    <div>
-                        <input asp-for="FirstName" placeholder="First name" />
-                        <span asp-validation-for="FirstName"></span>
-                    </div>
-                    <div>
-                        <input asp-for="LastName" placeholder="Last name" />
-                        <span asp-validation-for="LastName"></span>
-                    </div>
-                </div>
+            <div class="field">
+                <label asp-for="FirstName">First Name</label>
+                <input asp-for="FirstName" placeholder="First name" />
+                <span asp-validation-for="FirstName"></span>
+            </div>
 
-                <input asp-for="Email" placeholder="Email" />
-                <span asp-validation-for="Email"></span>
+            <div class="field">
+                <label asp-for="LastName">Last Name</label>
+                <input asp-for="LastName" placeholder="Last name" />
+                <span asp-validation-for="LastName"></span>
+            </div>
 
-                <input asp-for="Phone" placeholder="Phone (01xxxxxxxxx)" />
-                <span asp-validation-for="Phone"></span>
-
+            <div class="field">
+                <label asp-for="Address">Address</label>
                 <input asp-for="Address" placeholder="Address" />
                 <span asp-validation-for="Address"></span>
-
-                <div class="row">
-                    <div>
-                        <input asp-for="Password" placeholder="Password" />
-                        <span asp-validation-for="Password"></span>
-                    </div>
-                    <div>
-                        <input asp-for="ConfirmPassword" placeholder="Confirm" />
-                        <span asp-validation-for="ConfirmPassword"></span>
-                    </div>
-                </div>
-
-                <button type="submit" value="Register" class="btn btn-primary">Sign Up</button>
-                <partial name="_ExternalAuthentication" />
-            </form>
-        </div>
-
-        <!-- LOGIN -->
-        <div class="form-container sign-in-container">
-            <form asp-action="Login" method="post">
-                <h1>Sign In</h1>
-                <input type="email" name="Email" placeholder="Email" />
-                <input type="password" name="Password" placeholder="Password" />
-                <div class="login-options">
-                    <label class="remember">
-                        <input type="checkbox" name="RememberMe" value="true" />
-                        <span>Remember me</span>
-                    </label>
-                    <a href="/Identity/Account/ForgetPassword">Forgot your password?</a>
-                </div>
-                <button type="submit">Sign In</button>
-                <partial name="_ExternalAuthentication" />
-            </form>
-        </div>
-
-        <!-- SLIDING OVERLAY -->
-        <div class="overlay-container">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1>Welcome Back!</h1>
-                    <p>Already have an account? Sign in to continue.</p>
-                    <button class="ghost" id="signIn" type="button">Sign In</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>Hello, Friend!</h1>
-                    <p>New to Tiraz? Create an account and start with us.</p>
-                    <button class="ghost" id="signUp" type="button">Sign Up</button>
-                </div>
             </div>
-        </div>
+
+            <div class="field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" placeholder="name@example.com" />
+                <span asp-validation-for="Email"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="Phone">Phone</label>
+                <input asp-for="Phone" placeholder="01xxxxxxxxx" inputmode="numeric" />
+                <span asp-validation-for="Phone"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" placeholder="Password" autocomplete="new-password" />
+                <span asp-validation-for="Password"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="ConfirmPassword">Confirm Password</label>
+                <input asp-for="ConfirmPassword" placeholder="Confirm password" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword"></span>
+            </div>
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <p class="switch">Already have an account? <a asp-action="Login">Sign in</a></p>
     </div>
 
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
-    <script>
-            const container = document.getElementById("container");
-            document.getElementById("signUp").onclick = () => container.classList.add("right-panel-active");
-            document.getElementById("signIn").onclick = () => container.classList.remove("right-panel-active");
-    </script>
-    <partial name="_Toast" />
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const toastEl = document.getElementById("appToast");
-        if (toastEl) new bootstrap.Toast(toastEl).show();
-    </script>
+    <partial name="_ValidationScriptsPartial" />
 </body>
 </html>
-    <partial name="_ValidationScriptsPartial" />
