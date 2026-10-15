@@ -67,7 +67,7 @@ namespace MVC_Tiraz
                 app.UseHsts();
             }
 
-            //app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
+            app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
 
             app.UseHttpsRedirection();
             app.UseRouting();
@@ -78,7 +78,7 @@ namespace MVC_Tiraz
 
             app.MapControllerRoute(
                 name: "areas",
-                pattern: "{area:exists}/{controller=Home}/{action=DashBoard}/{id?}");
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

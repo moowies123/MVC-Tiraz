@@ -1,103 +1,15 @@
-﻿@model Product
+﻿@model MVC_Tiraz.ViewModels.ProductVM
 @{
     ViewData["Title"] = "Edit Product";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
-    var categories = ViewData["Categories"] as IEnumerable<Category> ?? Enumerable.Empty<Category>();
+    ViewData["FormAction"] = "Update";
+    ViewData["Heading"] = "Edit Product";
+    ViewData["SubmitText"] = "Save Changes";
 }
 
-<style>
-    .input-validation-error {
-        border-color: #dc3545 !important;
-    }
-</style>
-
-<div class="card shadow-sm border-0 mx-auto" style="max-width: 900px;">
-    <div class="card-header bg-white fw-bold">
-        Edit Product <span class="text-muted fw-normal">#@Model.ProductId</span>
-    </div>
-    <div class="card-body">
-        <form asp-action="Update" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <input type="hidden" asp-for="ProductId" />
-
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="Name" class="form-label fw-semibold">Name</label>
-                    <input asp-for="Name" class="form-control" placeholder="Product name" />
-                    <span asp-validation-for="Name" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="CategoryId" class="form-label fw-semibold">Category</label>
-                    <select asp-for="CategoryId" class="form-select"
-                            asp-items="new SelectList(categories, nameof(Category.CategoryId), nameof(Category.Name))">
-                        <option value="0">-- Select category --</option>
-                    </select>
-                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Price" class="form-label fw-semibold">Price</label>
-                    <input asp-for="Price" class="form-control" placeholder="0.00" inputmode="decimal" />
-                    <span asp-validation-for="Price" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Material" class="form-label fw-semibold">Material</label>
-                    <input asp-for="Material" class="form-control" placeholder="Material" />
-                    <span asp-validation-for="Material" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Status" class="form-label fw-semibold">Status</label>
-                    <select asp-for="Status" class="form-select">
-                        <option value="True">Active</option>
-                        <option value="False">In Active</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="imageFile" class="form-label fw-semibold">Change Image <span class="text-muted fw-normal">(optional)</span></label>
-                    <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*" />
-
-                    <img id="imagePreview" src="@Model.Image" alt="Current image"
-                         class="mt-3 rounded border @(string.IsNullOrEmpty(Model.Image) ? "d-none" : "")"
-                         style="max-height: 120px;" />
-                </div>
-
-                <div class="col-12">
-                    <label asp-for="Description" class="form-label fw-semibold">Description</label>
-                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Product description"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                </div>
-
-                <partial name="_ProductVariants" />
-            </div>
-
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-dark">
-                    <i class="bi bi-check-lg me-1"></i> Save Changes
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
-    </div>
-</div>
+<partial name="_ProductForm" model="Model" />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        document.getElementById("imageFile").addEventListener("change", function () {
-            const preview = document.getElementById("imagePreview");
-            const file = this.files[0];
-
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.classList.remove("d-none");
-            }
-        });
-    </script>
 }

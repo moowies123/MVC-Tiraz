@@ -1,0 +1,270 @@
+﻿@model MVC_Tiraz.ViewModels.ProductVM
+@{
+    var categories = ViewData["Categories"] as IEnumerable<Category> ?? Enumerable.Empty<Category>();
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+    var heading = ViewData["Heading"] as string ?? "Product";
+    var submitText = ViewData["SubmitText"] as string ?? "Save";
+
+    var initialJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Sizes.Select(s => new
+        {
+            size = s.Size,
+            colors = s.Colors.Select(c => new { color = c.Color, quantity = c.Quantity })
+        }));
+}
+
+<style>
+    .input-validation-error {
+        border-color: #dc3545 !important;
+    }
+</style>
+
+<div class="card shadow-sm border-0 mx-auto" style="max-width: 900px;">
+    <div class="card-header bg-white fw-bold">
+        @heading
+        @if (Model.ProductId > 0)
+        {
+            <span class="text-muted fw-normal">#@Model.ProductId</span>
+        }
+    </div>
+
+    <div class="card-body">
+        <form asp-action="@formAction" method="post" enctype="multipart/form-data" id="productForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="Image" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label fw-semibold">Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Product name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CategoryId" class="form-label fw-semibold">Category</label>
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="new SelectList(categories, nameof(Category.CategoryId), nameof(Category.Name))">
+                        <option value="0">-- Select category --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Price" class="form-label fw-semibold">Price</label>
+                    <input asp-for="Price" class="form-control" placeholder="0.00" inputmode="decimal" />
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Material" class="form-label fw-semibold">Material</label>
+                    <input asp-for="Material" class="form-control" placeholder="Material" />
+                    <span asp-validation-for="Material" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-semibold">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="True">Active</option>
+                        <option value="False">In Active</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="imageFile" class="form-label fw-semibold">
+                        Image
+                        @if (Model.ProductId > 0)
+                        {
+                            <span class="text-muted fw-normal">(optional)</span>
+                        }
+                    </label>
+                    <input type="file" name="imageFile" id="imageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                    <img id="imagePreview" alt="Preview"
+                         src="@(string.IsNullOrEmpty(Model.Image) ? null : Model.Image)"
+                         class="mt-2 rounded border @(string.IsNullOrEmpty(Model.Image) ? "d-none" : "")"
+                         style="max-height: 110px;" />
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Product description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Sizes and colors -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold mb-0">Sizes &amp; Colors</h6>
+                    <small class="text-muted">Add a size, then the colors available in it and how many of each.</small>
+                </div>
+                <button type="button" class="btn btn-outline-dark btn-sm" id="addSize">
+                    <i class="bi bi-plus-lg me-1"></i> Add size
+                </button>
+            </div>
+
+            <div id="sizes"></div>
+
+            <div id="variantError" class="alert alert-danger py-2 d-none"></div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-dark">
+                    <i class="bi bi-check-lg me-1"></i> @submitText
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const initialSizes = @Html.Raw(initialJson);
+
+        const form = document.getElementById("productForm");
+        const sizesEl = document.getElementById("sizes");
+        const errorBox = document.getElementById("variantError");
+
+        // ----- build one color row and one size block -----
+        function colorRow(color, quantity) {
+            const row = document.createElement("div");
+            row.className = "color-row d-flex gap-2 align-items-start mb-2";
+            row.innerHTML =
+                '<input type="text" class="form-control form-control-sm color-input" placeholder="Color (e.g. Red)" maxlength="30" />' +
+                '<input type="number" class="form-control form-control-sm qty-input" placeholder="Qty" min="0" max="100000" style="max-width:110px" />' +
+                '<button type="button" class="btn btn-outline-danger btn-sm remove-color" title="Remove color"><i class="bi bi-x-lg"></i></button>';
+            row.querySelector(".color-input").value = color || "";
+            row.querySelector(".qty-input").value = quantity ?? "";
+            return row;
+        }
+
+        function sizeBlock(size, colors) {
+            const block = document.createElement("div");
+            block.className = "size-block border rounded p-3 mb-3 bg-light";
+            block.innerHTML =
+                '<div class="d-flex gap-2 align-items-center mb-3">' +
+                    '<label class="fw-semibold mb-0">Size</label>' +
+                    '<input type="text" class="form-control form-control-sm size-input" placeholder="e.g. M" maxlength="10" style="max-width:140px" />' +
+                    '<button type="button" class="btn btn-outline-dark btn-sm add-color ms-auto"><i class="bi bi-plus-lg me-1"></i> Add color</button>' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm remove-size" title="Remove size"><i class="bi bi-trash"></i></button>' +
+                '</div>' +
+                '<div class="colors"></div>';
+
+            block.querySelector(".size-input").value = size || "";
+
+            const list = block.querySelector(".colors");
+            const rows = (colors && colors.length) ? colors : [{ color: "", quantity: "" }];
+            rows.forEach(c => list.appendChild(colorRow(c.color, c.quantity)));
+            return block;
+        }
+
+        // ----- buttons -----
+        document.getElementById("addSize").addEventListener("click", function () {
+            sizesEl.appendChild(sizeBlock("", []));
+        });
+
+        sizesEl.addEventListener("click", function (e) {
+            const addColor = e.target.closest(".add-color");
+            if (addColor) {
+                addColor.closest(".size-block").querySelector(".colors").appendChild(colorRow("", ""));
+                return;
+            }
+
+            const removeColor = e.target.closest(".remove-color");
+            if (removeColor) {
+                const list = removeColor.closest(".colors");
+                if (list.children.length > 1) removeColor.closest(".color-row").remove();   // keep at least one color per size
+                return;
+            }
+
+            const removeSize = e.target.closest(".remove-size");
+            if (removeSize) removeSize.closest(".size-block").remove();
+        });
+
+        // ----- check the rows before sending -----
+        function validateVariants() {
+            let message = "";
+            function fail(input, text) {
+                input.classList.add("is-invalid");
+                if (!message) message = text;
+            }
+
+            sizesEl.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+
+            const blocks = Array.from(sizesEl.querySelectorAll(".size-block"));
+            if (blocks.length === 0) message = "Add at least one size.";
+
+            const seenSizes = new Set();
+
+            blocks.forEach(function (block) {
+                const sizeInput = block.querySelector(".size-input");
+                const size = sizeInput.value.trim().toLowerCase();
+
+                if (!size) fail(sizeInput, "Every size needs a name.");
+                else if (seenSizes.has(size)) fail(sizeInput, 'Size "' + sizeInput.value.trim() + '" is added twice.');
+                seenSizes.add(size);
+
+                const seenColors = new Set();
+
+                block.querySelectorAll(".color-row").forEach(function (row) {
+                    const colorInput = row.querySelector(".color-input");
+                    const qtyInput = row.querySelector(".qty-input");
+                    const color = colorInput.value.trim().toLowerCase();
+
+                    if (!color) fail(colorInput, "Every color needs a name.");
+                    else if (seenColors.has(color)) fail(colorInput, 'Color "' + colorInput.value.trim() + '" is added twice in one size.');
+                    seenColors.add(color);
+
+                    if (!/^\d+$/.test(qtyInput.value.trim())) fail(qtyInput, "Quantity must be a whole number (0 or more).");
+                });
+            });
+
+            errorBox.textContent = message;
+            errorBox.classList.toggle("d-none", !message);
+            return !message;
+        }
+
+        // ASP.NET reads lists by position: Sizes[0].Size, Sizes[0].Colors[0].Color ...
+        // so the names are written fresh, in order, right before the form is sent.
+        function numberFields() {
+            sizesEl.querySelectorAll(".size-block").forEach(function (block, i) {
+                block.querySelector(".size-input").name = "Sizes[" + i + "].Size";
+
+                block.querySelectorAll(".color-row").forEach(function (row, j) {
+                    row.querySelector(".color-input").name = "Sizes[" + i + "].Colors[" + j + "].Color";
+                    row.querySelector(".qty-input").name = "Sizes[" + i + "].Colors[" + j + "].Quantity";
+                });
+            });
+        }
+
+        form.addEventListener("submit", function (e) {
+            if (!validateVariants()) {
+                e.preventDefault();
+                errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+            numberFields();
+        });
+
+        // ----- image preview -----
+        document.getElementById("imageFile").addEventListener("change", function () {
+            const preview = document.getElementById("imagePreview");
+            const file = this.files[0];
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove("d-none");
+            }
+        });
+
+        // ----- draw the saved rows (or one empty block for a new product) -----
+        if (initialSizes.length) {
+            initialSizes.forEach(s => sizesEl.appendChild(sizeBlock(s.size, s.colors)));
+        } else {
+            sizesEl.appendChild(sizeBlock("", []));
+        }
+    })();
+</script>
