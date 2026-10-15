@@ -27,6 +27,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (User.IsInRole(CD.SUPER_ADMIN_ROLE) || User.IsInRole(CD.ADMIN_ROLE) || User.IsInRole(CD.EMPLOYEE_ROLE))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="DashBoard">Admin</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

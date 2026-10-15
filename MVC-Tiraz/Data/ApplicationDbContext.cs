@@ -12,6 +12,8 @@
         public DbSet<Contains> Contains { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<ApplicationUserOtp> applicationUserOtps { get; set; } = null!;
+        public DbSet<ProductSize> ProductSizes { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -20,6 +22,14 @@
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<ProductColor>()
+                .HasIndex(c => new { c.ProductSizeId, c.Color })
+                .IsUnique();
+
+            builder.Entity<ProductSize>()
+                .HasIndex(s => new { s.ProductId, s.Size })
+                .IsUnique();
 
             builder.Entity<Has>()
                 .HasKey(h => new { h.UserId, h.ProductId });

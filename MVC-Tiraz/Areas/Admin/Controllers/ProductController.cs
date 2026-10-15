@@ -21,6 +21,9 @@
         public async Task<IActionResult> Index()
         {
             var products = await _productRepository.GetAllAsync();
+
+            ViewBag.Categories = await _categoryRepository.GetAllAsync();
+
             return View(products);
         }
 
@@ -28,16 +31,21 @@
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
+            ModelState.Remove(nameof(Product.Category));
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = await _categoryRepository.GetAllAsync();
-                TempData["Error_Notification"] = "Invalid Data";
+               
+                ModelState.AddModelError("", "Invalid Data");
+
                 return View(product);
             }
 
@@ -48,8 +56,11 @@
             }
 
             await _productRepository.AddAsync(product);
+            
             await _productRepository.SaveChangesAsync();
+            
             TempData["Successful_Notification"] = "Product Created Successfully";
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -59,10 +70,12 @@
         public async Task<IActionResult> Update(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
+
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Home");
 
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
+
             return View(product);
         }
 
@@ -70,21 +83,30 @@
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE}")]
         public async Task<IActionResult> Update(Product product, IFormFile? imageFile)
         {
+            ModelState.Remove(nameof(Product.Category));
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = await _categoryRepository.GetAllAsync();
-                TempData["Error_Notification"] = "Invalid Data";
+
+                ModelState.AddModelError("", "Invalid Data");
+                
                 return View(product);
             }
+           
             if (imageFile != null && imageFile.Length > 0)
             {
               
                 DeleteImage(product.Image);
                 product.Image = await SaveImageAsync(imageFile);
             }
+           
             _productRepository.Update(product);
+            
             await _productRepository.SaveChangesAsync();
+            
             TempData["Successful_Notification"] = "Product Updated Successfully";
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -93,17 +115,22 @@
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
+            
             if (product == null)
             {
-                TempData["Error_Notification"] = "Product Not Found";
+                ModelState.AddModelError("", "product Not Found");
+
                 return RedirectToAction(nameof(Index));
             }
 
             DeleteImage(product.Image);
 
             _productRepository.Remove(product);
+            
             await _productRepository.SaveChangesAsync();
+            
             TempData["Successful_Notification"] = "Product Deleted Successfully";
+            
             return RedirectToAction(nameof(Index));
         }
 
