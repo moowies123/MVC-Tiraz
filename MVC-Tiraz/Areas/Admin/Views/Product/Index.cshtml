@@ -10,7 +10,7 @@
 
 <!-- Top row: description on the left, Create button on the right -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">Manage your products, sizes, colors and stock.</p>
+    <p class="text-muted mb-0">Manage your products.</p>
 
     <a asp-action="Create" class="btn btn-dark">
         <i class="bi bi-plus-lg me-1"></i> Create
@@ -29,7 +29,8 @@
                         <th>Category</th>
                         <th>Price</th>
                         <th>Sizes</th>
-                        <th>Stock</th>
+                        <th>Colors</th>
+                        <th>In Stock</th>
                         <th>Status</th>
                         <th class="text-end" style="width: 220px;">Edit/Delete</th>
                     </tr>
@@ -38,7 +39,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No products yet.</td>
+                            <td colspan="10" class="text-center text-muted py-4">No products yet.</td>
                         </tr>
                     }
 
@@ -68,25 +69,38 @@
 
                             <td>@item.Price.ToString("C")</td>
 
-                            @* Hover a size to see its colors and quantities *@
                             <td>
-                                @foreach (var size in item.Sizes.OrderBy(s => s.ProductSizeId))
+                                @if (item.Sizes.Any())
                                 {
-                                    var tip = string.Join(", ", size.Colors.Select(c => $"{c.Color} ({c.Quantity})"));
-                                    <span class="badge bg-light text-dark border me-1" title="@tip">@size.Size</span>
+                                    @string.Join(", ", item.Sizes.OrderBy(s => s.ProductSizeId).Select(s => s.Size))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
                                 }
                             </td>
 
                             <td>
-                                @if (item.TotalStock == 0)
+                                @{
+                                    var colors = item.Sizes
+                                        .OrderBy(s => s.ProductSizeId)
+                                        .SelectMany(s => s.Colors.OrderBy(c => c.ProductColorId))
+                                        .Select(c => c.Color)
+                                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                                        .ToList();
+                                }
+
+                                @if (colors.Any())
                                 {
-                                    <span class="badge bg-danger">Out of stock</span>
+                                    @string.Join(", ", colors)
                                 }
                                 else
                                 {
-                                    @item.TotalStock
+                                    <span class="text-muted">-</span>
                                 }
                             </td>
+
+                            <td class="@(item.TotalStock == 0 ? "text-danger fw-semibold" : "")">@item.TotalStock</td>
 
                             @if (!item.Status)
                             {
@@ -104,7 +118,7 @@
                                         <i class="bi bi-pencil-square me-1"></i> Edit
                                     </a>
 
-                                    @if (User.IsInRole(CD.SUPER_ADMIN_ROLE))
+                                    @if (User.IsInRole(CD.SUPER_ADMIN_ROLE) || User.IsInRole(CD.ADMIN_ROLE))
                                     {
                                         <form asp-action="Delete" asp-route-id="@item.ProductId" method="post" class="d-inline delete-form">
                                             <button type="submit" class="btn btn-danger btn-sm">

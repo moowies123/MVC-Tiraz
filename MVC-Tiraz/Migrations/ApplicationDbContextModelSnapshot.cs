@@ -270,10 +270,6 @@ namespace MVC_Tiraz.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -288,20 +284,14 @@ namespace MVC_Tiraz.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
 
                     b.HasKey("ProductId");
 
@@ -310,6 +300,57 @@ namespace MVC_Tiraz.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ProductColor", b =>
+                {
+                    b.Property<int>("ProductColorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductColorId"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("ProductSizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductColorId");
+
+                    b.HasIndex("ProductSizeId", "Color")
+                        .IsUnique();
+
+                    b.ToTable("ProductColors");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ProductSize", b =>
+                {
+                    b.Property<int>("ProductSizeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductSizeId"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("ProductSizeId");
+
+                    b.HasIndex("ProductId", "Size")
+                        .IsUnique();
+
+                    b.ToTable("ProductSizes");
                 });
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Review", b =>
@@ -588,6 +629,28 @@ namespace MVC_Tiraz.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ProductColor", b =>
+                {
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.ProductSize", "ProductSize")
+                        .WithMany("Colors")
+                        .HasForeignKey("ProductSizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductSize");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ProductSize", b =>
+                {
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
+                        .WithMany("Sizes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Review", b =>
                 {
                     b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
@@ -715,7 +778,14 @@ namespace MVC_Tiraz.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("Sizes");
+
                     b.Navigation("Wishlists");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ProductSize", b =>
+                {
+                    b.Navigation("Colors");
                 });
 #pragma warning restore 612, 618
         }
