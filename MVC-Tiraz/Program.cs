@@ -67,7 +67,7 @@ namespace MVC_Tiraz
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
+            //app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
 
             app.UseHttpsRedirection();
             app.UseRouting();

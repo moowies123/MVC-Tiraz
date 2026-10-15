@@ -1,20 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MVC_Tiraz.Models.TIRAZ.Models;
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-namespace MVC_Tiraz.Areas.Admin.Controllers
-=======
-
-namespace MVC_Tiraz.Areas.Admin
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
+﻿namespace MVC_Tiraz.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE},{CD.EMPLOYEE_ROLE}")]
     public class CategoryController : Controller
     {
         private readonly IRepository<Category> _categoryRepository;
-    public CategoryController(IRepository<Category> categoryRepository)
+        public CategoryController(IRepository<Category> categoryRepository)
         {
             _categoryRepository = categoryRepository;
         }
@@ -24,11 +15,7 @@ namespace MVC_Tiraz.Areas.Admin
         {
             var categories = await _categoryRepository.GetAllAsync();
 
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-            return View((categories.AsEnumerable()));
-=======
             return View(categories);
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
         }
 
         [HttpGet]
@@ -50,16 +37,9 @@ namespace MVC_Tiraz.Areas.Admin
             await _categoryRepository.AddAsync(category);
 
             await _categoryRepository.SaveChangesAsync();
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-            
+
             TempData["Successful_Notification"] = "Category Created Successfully";
-            
-=======
 
-            TempData["Successful_Notification"] =
-                "Category Created Successfully";
-
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
             return RedirectToAction(nameof(Index));
         }
 
@@ -77,28 +57,12 @@ namespace MVC_Tiraz.Areas.Admin
 
             return View(category);
         }
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-
-        [HttpPost]
-        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE} ")]
-=======
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
         public async Task<IActionResult> Update(Category category)
         {
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-            _categoryRepository.Update(category);
-
-            await _categoryRepository.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE} ")]
-=======
             if (!ModelState.IsValid)
             {
                 return View(category);
@@ -124,11 +88,9 @@ namespace MVC_Tiraz.Areas.Admin
             return RedirectToAction(nameof(Index));
         }
 
-      
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
@@ -138,12 +100,6 @@ namespace MVC_Tiraz.Areas.Admin
                 return RedirectToAction("NotFoundPage", "Home",
                     new { area = "" });
             }
-
-<<<<<<< HEAD:MVC-Tiraz/Areas/Admin/Controllers/CategoryController.cs
-            _categoryRepository.Remove(category);
-
-            await _categoryRepository.SaveChangesAsync();
-=======
             try
             {
                 _categoryRepository.Remove(category);
@@ -158,7 +114,6 @@ namespace MVC_Tiraz.Areas.Admin
                 TempData["Error_Notification"] =
                     "Cannot delete this category because it may be linked to products.";
             }
->>>>>>> origin:MVC-Tiraz/Areas/Admin/CategoryController.cs
 
             return RedirectToAction(nameof(Index));
         }
