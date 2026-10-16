@@ -31,7 +31,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            return View(user.Adapt<ApplicationUserVM>());   // or your manual mapping
+            return View(user.Adapt<ApplicationUserVM>());
         }
 
         [HttpPost]
@@ -49,7 +49,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
 
             if (!result.Succeeded)
             {
-                var errors = string.Join(" ,", result.Errors.Select(e => e.Description));
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
 
                 TempData["Error_Notification"] = errors;
 
@@ -78,7 +78,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
 
             if (!result.Succeeded)
             {
-                var errors = string.Join(" ,", result.Errors.Select(e => e.Description));
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
 
                 TempData["Error_Notification"] = errors;
                 

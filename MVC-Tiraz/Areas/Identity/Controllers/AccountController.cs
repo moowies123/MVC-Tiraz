@@ -404,12 +404,16 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
             return RedirectToAction("Index", "Home", new { area = "Customer" });
         }
 
-        [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             TempData["Success"] = "You have been logged out";
             return RedirectToAction(nameof(Login));
+        }
+
+        public async Task<IActionResult> AccessDenied()
+        {
+            return View();
         }
     }
 }
