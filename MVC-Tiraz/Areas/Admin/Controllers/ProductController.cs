@@ -190,7 +190,9 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var products = await _productRepository.GetAllAsync(null, Includes);
+
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
+            
             return View(products);
         }
 
@@ -198,6 +200,7 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
+
             return View(new ProductVM());
         }
 
@@ -296,7 +299,6 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
             }
             catch (DbUpdateException)
             {
-                // The database refused: a size or color that was removed is used by a cart or an order
                 DeleteImage(newImage);
 
                 ViewBag.Categories = await _categoryRepository.GetAllAsync();
@@ -304,7 +306,7 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 return View(vm);
             }
 
-            DeleteImage(oldImage);   // only after the new data is safely saved
+            DeleteImage(oldImage);
 
             TempData["Successful_Notification"] = "Product Updated Successfully";
             return RedirectToAction(nameof(Index));
@@ -312,7 +314,7 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE}")]
+        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
@@ -334,15 +336,13 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            DeleteImage(product.Image);   // only after the database accepted the delete
+            DeleteImage(product.Image);
 
             TempData["Successful_Notification"] = "Product Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
 
-        // ---------- Variants (sizes and colors) ----------
-
-        // Same name ignoring spaces and upper/lower case
+        // used to compare colors names ex: "red" , "Red"
         private static bool Same(string? a, string? b) =>
             string.Equals(a?.Trim(), b?.Trim(), StringComparison.OrdinalIgnoreCase);
 
@@ -392,11 +392,8 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
             }
         }
 
-        // Makes product.Sizes match the form. Rows that already exist are updated in place,
-        // so their ids (used by carts and orders) never change.
         private static void SyncVariants(Product product, List<ProductSizeVM> sizes)
         {
-            // 1. remove sizes and colors that are no longer in the form
             foreach (var size in product.Sizes.ToList())
             {
                 var sizeVm = sizes.FirstOrDefault(s => Same(s.Size, size.Size));
@@ -414,7 +411,6 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 }
             }
 
-            // 2. add new sizes and colors, update the quantity of existing ones
             foreach (var sizeVm in sizes)
             {
                 var size = product.Sizes.FirstOrDefault(s => Same(s.Size, sizeVm.Size));
@@ -460,7 +456,6 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 .ToList()
         };
 
-        // ---------- Images ----------
 
         private void ValidateImage(IFormFile? imageFile)
         {

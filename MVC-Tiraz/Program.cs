@@ -36,6 +36,12 @@ namespace MVC_Tiraz
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+            });
+
             builder.Services.AddAuthentication()
             .AddGoogle("google", opt =>
             {
@@ -67,7 +73,7 @@ namespace MVC_Tiraz
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
+            //app.UseStatusCodePagesWithReExecute("/Admin/Home/NotFoundPage");
 
             app.UseHttpsRedirection();
             app.UseRouting();

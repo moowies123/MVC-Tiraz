@@ -33,6 +33,18 @@
                                 <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="DashBoard">Admin</a>
                             </li>
                         }
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item"><a class="nav-link" href="/Identity/Account/Login">Login</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/Identity/Account/Register">Register</a></li>
+                            }
+                            else
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/Identity/Profile/UserInfo">Welcome @User.Identity.Name</a></li>
+                            }
+                        </ul>
                     </ul>
                 </div>
             </div>
