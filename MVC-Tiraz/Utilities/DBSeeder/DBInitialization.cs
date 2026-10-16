@@ -1,4 +1,5 @@
-﻿using TIRAZ.Data;
+﻿
+using TIRAZ.Data;
 
 namespace MVC_Tiraz.Utilities.DBSeeder
 {
@@ -8,7 +9,10 @@ namespace MVC_Tiraz.Utilities.DBSeeder
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public DBInitialization(ApplicationDbContext context, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        public DBInitialization(
+            ApplicationDbContext context,
+            RoleManager<IdentityRole> roleManager,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _roleManager = roleManager;
@@ -19,35 +23,97 @@ namespace MVC_Tiraz.Utilities.DBSeeder
         {
             try
             {
-                if (_context.Database.GetPendingMigrations().Any())
+                if ((await _context.Database.GetPendingMigrationsAsync()).Any())
                 {
-                    _context.Database.Migrate();
+                    await _context.Database.MigrateAsync();
                 }
 
-                if (!_roleManager.Roles.Any())
+                // Create roles if they don't exist
+                string[] roles =
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(CD.SUPER_ADMIN_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.ADMIN_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.EMPLOYEE_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.CUSTOMER_ROLE));
+                    CD.SUPER_ADMIN_ROLE,
+                    CD.ADMIN_ROLE,
+                    CD.EMPLOYEE_ROLE,
+                    CD.CUSTOMER_ROLE
+                };
 
-                    await _userManager.CreateAsync(new ApplicationUser
+                foreach (var role in roles)
+                {
+                    if (!await _roleManager.RoleExistsAsync(role))
+                    {
+                        var roleResult = await _roleManager.CreateAsync(
+                            new IdentityRole(role));
+
+                        if (!roleResult.Succeeded)
+                        {
+                            throw new Exception(
+                                string.Join(", ",
+                                    roleResult.Errors.Select(e => e.Description)));
+                        }
+                    }
+                }
+
+                // Create Super Admin if it doesn't exist
+                var user = await _userManager.FindByNameAsync("SuperAdmin123");
+
+                if (user == null)
+                {
+                    user = new ApplicationUser
                     {
                         FirstName = "Super",
                         LastName = "Admin",
                         UserName = "SuperAdmin123",
                         Address = "Cairo",
-                        Email = "superAdmin123@test.com"
-                    }, "sS@123");
+                        Email = "superAdmin123@test.com",
+                        EmailConfirmed = true
+                    };
 
-                    var user = await _userManager.FindByNameAsync("SuperAdmin123");
+                    var createResult = await _userManager.CreateAsync(
+                        user, "sS@123");
 
-                    await _userManager.AddToRoleAsync(user, CD.SUPER_ADMIN_ROLE);
+                    if (!createResult.Succeeded)
+                    {
+                        throw new Exception(
+                            string.Join(", ",
+                                createResult.Errors.Select(e => e.Description)));
+                    }
+                }
+                else if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+
+                    var updateResult = await _userManager.UpdateAsync(user);
+
+                    if (!updateResult.Succeeded)
+                    {
+                        throw new Exception(
+                            string.Join(", ",
+                                updateResult.Errors.Select(e => e.Description)));
+                    }
+                }
+
+                // Ensure Super Admin has the correct role
+                if (!await _userManager.IsInRoleAsync(
+                    user, CD.SUPER_ADMIN_ROLE))
+                {
+                    var roleResult = await _userManager.AddToRoleAsync(
+                        user, CD.SUPER_ADMIN_ROLE);
+
+                    if (!roleResult.Succeeded)
+                    {
+                        throw new Exception(
+                            string.Join(", ",
+                                roleResult.Errors.Select(e => e.Description)));
+                    }
                 }
             }
             catch (Exception ex)
             {
+                // Log the exception instead of silently ignoring it
+                Console.WriteLine(
+                    $"Database initialization failed: {ex}");
 
+                throw;
             }
         }
     }
