@@ -14,6 +14,8 @@
         public DbSet<ApplicationUserOtp> applicationUserOtps { get; set; } = null!;
         public DbSet<ProductSize> ProductSizes { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -74,6 +76,12 @@
                 .HasOne(p => p.Order)
                 .WithOne(o => o.Payment)
                 .HasForeignKey<Payment>(o => o.OrderId);
+
+            builder.Entity<Cart>()
+                .HasOne(c => c.ProductColor)
+                .WithMany()
+                .HasForeignKey(c => c.ProductColorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

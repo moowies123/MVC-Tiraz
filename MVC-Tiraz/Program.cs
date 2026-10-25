@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using MVC_Tiraz.Services;
 using MVC_Tiraz.Utilities;
 using MVC_Tiraz.Utilities.DBSeeder;
+using Stripe;
 using TIRAZ.Data;
 using TIRAZ.Data;
 using TIRAZ.Repositories;
@@ -42,6 +44,9 @@ namespace MVC_Tiraz
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
             });
 
+            //builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
             builder.Services.AddAuthentication()
             .AddGoogle("google", opt =>
             {
@@ -52,9 +57,10 @@ namespace MVC_Tiraz
             });
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IDBInitialization, DBInitialization>();
+            builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
+            builder.Services.AddSingleton<IImageValidator, ImageValidator>();
 
 
             var app = builder.Build();
@@ -88,7 +94,7 @@ namespace MVC_Tiraz
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

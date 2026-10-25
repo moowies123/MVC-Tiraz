@@ -32,25 +32,25 @@
 
         <!-- Sidebar -->
         <nav class="sidebar p-3">
-            <a class="d-block text-white fs-4 fw-bold text-decoration-none mb-4" asp-controller="Dashboard" asp-action="Index">
+            <a class="d-block text-white fs-4 fw-bold text-decoration-none mb-4" asp-area="Admin" asp-controller="Home" asp-action="DashBoard">
                 <i class="bi bi-shop"></i> Admin
             </a>
             <ul class="nav flex-column gap-1">
-                <li class="nav-item">
+                <li class="nav-item.User">
                     <a class="nav-link rounded" href="/Admin/Home/DashBoard">
                         <i class="bi bi-speedometer2 me-2"></i>Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item.User">
                     <a class="nav-link rounded" href="/Admin/Product/Index"><i class="bi bi-box-seam me-2"></i>Products</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item.User">
                     <a class="nav-link rounded" href="/Admin/Category/Index"><i class="bi bi-tags me-2"></i>Categories</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item.User">
                     <a class="nav-link rounded" href="/Admin/User/Index"><i class="bi bi-tags me-2"></i>Users</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item.User">
                     <a class="nav-link rounded" href="#"><i class="bi bi-receipt me-2"></i>Orders</a>
                 </li>
             </ul>
@@ -58,9 +58,9 @@
 
         <!-- Main content -->
         <div class="flex-grow-1">
-            <header class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+            <header class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-item.Users-center">
                 <h5 class="mb-0">@ViewData["Title"]</h5>
-                <a class="btn btn-outline-secondary btn-sm" asp-controller="Home" asp-action="Index">
+                <a class="btn btn-outline-secondary btn-sm" href="/Customer/Home/Index">
                     <i class="bi bi-box-arrow-up-right"></i> View Store
                 </a>
             </header>

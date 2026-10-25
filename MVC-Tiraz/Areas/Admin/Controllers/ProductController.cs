@@ -1,168 +1,5 @@
-﻿//namespace MVC_Tiraz.Areas.Admin.Controllers
-//{
-//    [Area("Admin")]
-//    [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE} , {CD.EMPLOYEE_ROLE}")]
-//    public class ProductController : Controller
-//    {
-//        private readonly IRepository<Product> _productRepository;
-//        private readonly IRepository<Category> _categoryRepository;
-//        private readonly IWebHostEnvironment _webHostEnvironment;
-
-//        public ProductController(
-//            IRepository<Product> productRepository,
-//            IRepository<Category> categoryRepository,
-//            IWebHostEnvironment webHostEnvironment)
-//        {
-//            _productRepository = productRepository;
-//            _categoryRepository = categoryRepository;
-//            _webHostEnvironment = webHostEnvironment;
-//        }
-
-//        public async Task<IActionResult> Index()
-//        {
-//            var products = await _productRepository.GetAllAsync();
-
-//            ViewBag.Categories = await _categoryRepository.GetAllAsync();
-
-//            return View(products);
-//        }
-
-//        [HttpGet]
-//        public async Task<IActionResult> Create()
-//        {
-//            ViewBag.Categories = await _categoryRepository.GetAllAsync();
-
-//            return View();
-//        }
-
-//        [HttpPost]
-//        public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
-//        {
-//            ModelState.Remove(nameof(Product.Category));
-
-//            if (!ModelState.IsValid)
-//            {
-//                ViewBag.Categories = await _categoryRepository.GetAllAsync();
-
-//                ModelState.AddModelError("", "Invalid Data");
-
-//                return View(product);
-//            }
-
-
-//            if (imageFile != null && imageFile.Length > 0)
-//            {
-//                product.Image = await SaveImageAsync(imageFile);
-//            }
-
-//            await _productRepository.AddAsync(product);
-
-//            await _productRepository.SaveChangesAsync();
-
-//            TempData["Successful_Notification"] = "Product Created Successfully";
-
-//            return RedirectToAction(nameof(Index));
-//        }
-
-
-//        [HttpGet]
-//        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE}")]
-//        public async Task<IActionResult> Update(int id)
-//        {
-//            var product = await _productRepository.GetByIdAsync(id);
-
-//            if (product == null)
-//                return RedirectToAction("NotFoundPage", "Home");
-
-//            ViewBag.Categories = await _categoryRepository.GetAllAsync();
-
-//            return View(product);
-//        }
-
-//        [HttpPost]
-//        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE} , {CD.ADMIN_ROLE}")]
-//        public async Task<IActionResult> Update(Product product, IFormFile? imageFile)
-//        {
-//            ModelState.Remove(nameof(Product.Category));
-
-//            if (!ModelState.IsValid)
-//            {
-//                ViewBag.Categories = await _categoryRepository.GetAllAsync();
-
-//                ModelState.AddModelError("", "Invalid Data");
-
-//                return View(product);
-//            }
-
-//            if (imageFile != null && imageFile.Length > 0)
-//            {
-
-//                DeleteImage(product.Image);
-//                product.Image = await SaveImageAsync(imageFile);
-//            }
-
-//            _productRepository.Update(product);
-
-//            await _productRepository.SaveChangesAsync();
-
-//            TempData["Successful_Notification"] = "Product Updated Successfully";
-
-//            return RedirectToAction(nameof(Index));
-//        }
-
-//        [HttpPost]
-//        [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE}")]
-//        public async Task<IActionResult> Delete(int id)
-//        {
-//            var product = await _productRepository.GetByIdAsync(id);
-
-//            if (product == null)
-//            {
-//                ModelState.AddModelError("", "product Not Found");
-
-//                return RedirectToAction(nameof(Index));
-//            }
-
-//            DeleteImage(product.Image);
-
-//            _productRepository.Remove(product);
-
-//            await _productRepository.SaveChangesAsync();
-
-//            TempData["Successful_Notification"] = "Product Deleted Successfully";
-
-//            return RedirectToAction(nameof(Index));
-//        }
-
-//        private async Task<string> SaveImageAsync(IFormFile imageFile)
-//        {
-//            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-
-//            if (!Directory.Exists(uploadsFolder))
-//                Directory.CreateDirectory(uploadsFolder);
-
-//            var fileName = Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
-//            var filePath = Path.Combine(uploadsFolder, fileName);
-
-//            using var stream = new FileStream(filePath, FileMode.Create);
-//            await imageFile.CopyToAsync(stream);
-
-//            return "/images/products/" + fileName;
-//        }
-
-//        private void DeleteImage(string? imagePath)
-//        {
-//            if (string.IsNullOrEmpty(imagePath)) return;
-
-//            var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
-//            if (System.IO.File.Exists(fullPath))
-//                System.IO.File.Delete(fullPath);
-//        }
-//    }
-//}
-
-
-using MVC_Tiraz.ViewModels;
+﻿using MVC_Tiraz.Services;
+using static MVC_Tiraz.ViewModels.ProductVM;
 
 namespace MVC_Tiraz.Areas.Admin.Controllers
 {
@@ -171,25 +8,28 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private const string Includes = "Sizes.Colors";
-        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".webp" };
+        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".jfif" };
 
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<Category> _categoryRepository;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IImageStorage _imageStorage;
+        private readonly IImageValidator _imageValidator;
 
         public ProductController(
             IRepository<Product> productRepository,
             IRepository<Category> categoryRepository,
-            IWebHostEnvironment webHostEnvironment)
+            IImageStorage imageStorage,
+            IImageValidator imageValidator)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
-            _webHostEnvironment = webHostEnvironment;
+            _imageStorage = imageStorage;
+            _imageValidator = imageValidator;
         }
 
         public async Task<IActionResult> Index()
         {
-            var products = await _productRepository.GetAllAsync(null, Includes);
+            var products = await _productRepository.GetAllIncludingAsync(null, includePaths: ["Sizes.Colors", "Images"]);
 
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
             
@@ -206,10 +46,12 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductVM vm, IFormFile? imageFile)
+        public async Task<IActionResult> Create(ProductVM vm, List<IFormFile> imageFiles)
         {
             ValidateVariants(vm);
-            ValidateImage(imageFile);
+
+            foreach (var error in _imageValidator.Validate(imageFiles))
+                ModelState.AddModelError("", error);
 
             if (!ModelState.IsValid)
             {
@@ -228,8 +70,8 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 CategoryId = vm.CategoryId
             };
 
-            if (imageFile != null && imageFile.Length > 0)
-                product.Image = await SaveImageAsync(imageFile);
+            foreach (var url in await _imageStorage.SaveAsync(imageFiles))
+                product.Images.Add(new ProductImage { Url = url });
 
             SyncVariants(product, vm.Sizes);
 
@@ -244,7 +86,7 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
         public async Task<IActionResult> Update(int id)
         {
-            var product = (await _productRepository.GetAllAsync(p => p.ProductId == id, Includes)).FirstOrDefault();
+            var product = (await _productRepository.GetAllIncludingAsync(p => p.ProductId == id, includePaths: ["Sizes.Colors", "Images"])).FirstOrDefault();
 
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Home", new { area = "" });
@@ -256,40 +98,34 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
-        public async Task<IActionResult> Update(ProductVM vm, IFormFile? imageFile)
+        public async Task<IActionResult> Update(ProductVM vm, List<IFormFile> imageFiles, List<int> removeImageIds)
         {
             ValidateVariants(vm);
-            ValidateImage(imageFile);
+            foreach (var error in _imageValidator.Validate(imageFiles))
+                ModelState.AddModelError("", error);
 
             if (!ModelState.IsValid)
             {
+                vm.ExistingImages = await GetExistingImagesAsync(vm.ProductId);
                 ViewBag.Categories = await _categoryRepository.GetAllAsync();
                 TempData["Error_Notification"] = "Invalid Data";
                 return View(vm);
             }
 
-            // Load the saved product with its sizes and colors, then change only what the form changed
-            var product = (await _productRepository.GetAllAsync(p => p.ProductId == vm.ProductId, Includes)).FirstOrDefault();
+            var product = (await _productRepository.GetAllIncludingAsync(p => p.ProductId == vm.ProductId, includePaths: ["Sizes.Colors", "Images"])).FirstOrDefault();
 
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Home", new { area = "" });
 
-            product.Name = vm.Name.Trim();
-            product.Material = vm.Material.Trim();
-            product.Price = vm.Price;
-            product.Description = vm.Description?.Trim() ?? "";
-            product.Status = vm.Status;
-            product.CategoryId = vm.CategoryId;
+            var removed = product.Images.Where(i => removeImageIds.Contains(i.ProductImageId)).ToList();
 
-            string? oldImage = null;
-            string? newImage = null;
+            foreach (var image in removed)
+                product.Images.Remove(image);
 
-            if (imageFile != null && imageFile.Length > 0)
-            {
-                oldImage = product.Image;
-                newImage = await SaveImageAsync(imageFile);
-                product.Image = newImage;
-            }
+            var newUrls = await _imageStorage.SaveAsync(imageFiles);
+
+            foreach (var url in newUrls)
+                product.Images.Add(new ProductImage { Url = url });
 
             SyncVariants(product, vm.Sizes);
 
@@ -299,14 +135,17 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
             }
             catch (DbUpdateException)
             {
-                DeleteImage(newImage);
+                _imageStorage.Delete(newUrls);
+
+                vm.ExistingImages = await GetExistingImagesAsync(vm.ProductId);
 
                 ViewBag.Categories = await _categoryRepository.GetAllAsync();
+
                 ModelState.AddModelError("", "A size or color you removed is used in a cart or an order. Keep it and set its quantity to 0 instead.");
                 return View(vm);
             }
 
-            DeleteImage(oldImage);
+            _imageStorage.Delete(removed.Select(i => i.Url));
 
             TempData["Successful_Notification"] = "Product Updated Successfully";
             return RedirectToAction(nameof(Index));
@@ -317,13 +156,15 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
         [Authorize(Roles = $"{CD.SUPER_ADMIN_ROLE},{CD.ADMIN_ROLE}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            var product = (await _productRepository.GetAllIncludingAsync(p => p.ProductId == id, includePaths: ["Images"])).FirstOrDefault();
 
             if (product == null)
             {
                 TempData["Error_Notification"] = "Product Not Found";
                 return RedirectToAction(nameof(Index));
             }
+
+            var urls = product.Images.Select(i => i.Url).ToList();
 
             try
             {
@@ -336,13 +177,12 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            DeleteImage(product.Image);
+            _imageStorage.Delete(urls);
 
             TempData["Successful_Notification"] = "Product Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
 
-        // used to compare colors names ex: "red" , "Red"
         private static bool Same(string? a, string? b) =>
             string.Equals(a?.Trim(), b?.Trim(), StringComparison.OrdinalIgnoreCase);
 
@@ -439,8 +279,8 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
             Name = p.Name,
             Material = p.Material,
             Price = p.Price,
+            ExistingImages = p.Images.Select(i => new ProductImageVM(i.ProductImageId, i.Url)).ToList(),
             Description = p.Description,
-            Image = p.Image,
             Status = p.Status,
             CategoryId = p.CategoryId,
             Sizes = p.Sizes
@@ -456,41 +296,10 @@ namespace MVC_Tiraz.Areas.Admin.Controllers
                 .ToList()
         };
 
-
-        private void ValidateImage(IFormFile? imageFile)
+        private async Task<List<ProductImageVM>> GetExistingImagesAsync(int productId)
         {
-            if (imageFile == null || imageFile.Length == 0) return;
-
-            if (!AllowedImageExtensions.Contains(Path.GetExtension(imageFile.FileName).ToLowerInvariant()))
-                ModelState.AddModelError("", "Image must be a .jpg, .png or .webp file.");
-
-            if (imageFile.Length > 2 * 1024 * 1024)
-                ModelState.AddModelError("", "Image must be 2 MB or smaller.");
-        }
-
-        private async Task<string> SaveImageAsync(IFormFile imageFile)
-        {
-            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await imageFile.CopyToAsync(stream);
-
-            return "/images/products/" + fileName;
-        }
-
-        private void DeleteImage(string? imagePath)
-        {
-            if (string.IsNullOrEmpty(imagePath)) return;
-
-            var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
-            if (System.IO.File.Exists(fullPath))
-                System.IO.File.Delete(fullPath);
+            var product = (await _productRepository.GetAllIncludingAsync(p => p.ProductId == productId, includePaths: ["Images"])).FirstOrDefault();
+            return product?.Images.Select(i => new ProductImageVM(i.ProductImageId, i.Url)).ToList() ?? new();
         }
     }
 }

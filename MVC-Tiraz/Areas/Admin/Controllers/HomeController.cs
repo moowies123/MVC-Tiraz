@@ -24,7 +24,7 @@
         public async Task<IActionResult> DashBoard()
         {
             var orders = await _orderRepository.GetAllAsync();
-            var products = await _productRepository.GetAllAsync(null, "Sizes.Colors");
+            var products = await _productRepository.GetAllAsync();
             var contains = await _containsRepository.GetAllAsync();
 
             var soldPerProduct = contains
@@ -39,8 +39,22 @@
                 TotalSales = products.Sum(p => p.SalesCount * p.Price),
                 TotalSold = products.Sum(p => p.SalesCount),
                 TotalVisitors = _userManager.Users.Count(),
-                Product = products.OrderByDescending(p => p.ProductId).Take(5).ToList()
+                Product = products.OrderByDescending(p => p.SalesCount).ThenByDescending(p => p.ProductId).ToList()
             };
+
+            var roles = new[] { CD.SUPER_ADMIN_ROLE, CD.ADMIN_ROLE, CD.EMPLOYEE_ROLE, CD.CUSTOMER_ROLE };
+            var usersByRole = new Dictionary<string, int>();
+
+            foreach (var role in roles)
+            {
+                var inRole = await _userManager.GetUsersInRoleAsync(role);
+                usersByRole[role] = inRole.Count;
+            }
+
+            var withoutRole = vm.TotalVisitors - usersByRole.Values.Sum();
+            if (withoutRole > 0) usersByRole["No role"] = withoutRole;
+
+            vm.UsersByRole = usersByRole;
 
             return View(vm);
         }

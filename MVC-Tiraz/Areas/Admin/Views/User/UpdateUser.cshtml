@@ -1,0 +1,64 @@
+﻿@model ApplicationUserVM
+@{
+    ViewData["Title"] = "Update User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .input-validation-error {
+        border-color: #dc3545 !important;
+    }
+</style>
+
+<div class="card shadow-sm border-0" style="max-width: 600px;">
+    <div class="card-header bg-white fw-bold">Edit User</div>
+    <div class="card-body">
+        <form asp-action="UpdateUser" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <input type="hidden" asp-for="@Model.User.Id" />
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Id</label>
+                <input class="form-control" value="@Model.User.Id" disabled />
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="@Model.UserName" class="form-label fw-semibold">UserName</label>
+                <input asp-for="@Model.UserName" class="form-control" disabled/>
+                <span asp-validation-for="@Model.UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="@Model.Email" class="form-label fw-semibold">Email</label>
+                <input asp-for="@Model.Email" class="form-control" disabled/>
+                <span asp-validation-for="@Model.Email" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Role"
+                       class="form-label fw-semibold">Role</label>
+
+                <select asp-for="Role"
+                        asp-items="Model.Roles"
+                        class="form-select">
+                    <option value="">-- Select Role --</option>
+                </select>
+
+                <span asp-validation-for="Role"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary mt-3">
+                    Update User
+                </button>
+                <a asp-action="Index" class="btn btn-secondary mt-3">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

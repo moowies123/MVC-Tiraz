@@ -11,7 +11,7 @@ public class ProductVM
     public string Name { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Material is required")]
-    [StringLength(50, ErrorMessage = "Material is too long")]
+    [StringLength(50, ErrorMessage = "Material name is too long")]
     public string Material { get; set; } = string.Empty;
 
     [Range(0.01, 1000000, ErrorMessage = "Price must be greater than 0")]
@@ -27,6 +27,9 @@ public class ProductVM
     public string? Image { get; set; }
 
     public List<ProductSizeVM> Sizes { get; set; } = new();
+    public List<ProductImageVM> ExistingImages { get; set; } = new();
+
+    public record ProductImageVM(int Id, string Url);
 }
 
 

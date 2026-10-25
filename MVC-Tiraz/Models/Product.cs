@@ -16,9 +16,7 @@ namespace MVC_Tiraz.Models
 
             [Range(0.01, 1000000, ErrorMessage = "Price must be greater than 0")]
             public decimal Price { get; set; }
-
-            [Range(0, 100000, ErrorMessage = "Stock cannot be negative")]
-            public string Image { get; set; } = string.Empty;
+            public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
             public string Description { get; set; } = string.Empty;
 
             [NotMapped]
@@ -28,6 +26,8 @@ namespace MVC_Tiraz.Models
             public int SalesCount { get; set; }
             public ICollection<ProductSize> Sizes { get; set; } = new List<ProductSize>();
             public bool Status { get; set; } = true;
+            public decimal? Discount { get; set; }
+            public decimal? Rate { get; set; }
 
             [ForeignKey(nameof(Category))]
             [Range(1, int.MaxValue, ErrorMessage = "Please select a category")]
