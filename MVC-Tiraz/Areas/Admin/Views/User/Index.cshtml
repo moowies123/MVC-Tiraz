@@ -1,11 +1,11 @@
-﻿@model IEnumerable<ApplicationUser>
+﻿@model IEnumerable<ApplicationUserVM>
 @{
-    ViewData["Title"] = "Products";
+    ViewData["Title"] = "Create User";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <!-- Top row: description on the left, Create button on the right -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-item.Users-center mb-3">
     <p class="text-muted mb-0">User Management</p>
 
     <a asp-action="CreateUser" class="btn btn-dark">
@@ -25,6 +25,7 @@
                         <th>User Name</th>
                         <th>Email</th>
                         <th>Confirmation</th>
+                        <th>Role</th>
                         <th class="text-end" style="width: 220px;">Lock/UnLock</th>
                     </tr>
                 </thead>
@@ -33,17 +34,17 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Id</td>
+                            <td>@item.User.Id</td>
 
-                            <td class="fw-semibold">@item.FirstName</td>
+                            <td class="fw-semibold">@item.User.FirstName</td>
 
-                            <td class="fw-semibold">@item.LastName</td>
+                            <td class="fw-semibold">@item.User.LastName</td>
                             
-                            <td class="fw-semibold">@item.UserName</td>
+                            <td class="fw-semibold">@item.User.UserName</td>
 
-                            <td class="fw-semibold">@item.Email</td>
+                            <td class="fw-semibold">@item.User.Email</td>
 
-                            @if (!item.EmailConfirmed)
+                            @if (!item.User.EmailConfirmed)
                             {
                                 <td class="fw-semibold" style="color:red">In Active</td>
                             }
@@ -52,10 +53,17 @@
                                 <td class="fw-semibold" style="color:limegreen">Active</td>
                             }
 
-                            @if (item.LockoutEnd == null || item.LockoutEnd < DateTime.UtcNow)
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <td class="fw-semibold">
+                                    <strong>@item.Role</strong>
+                                </td>
+                            }
+
+                            @if (item.User.LockoutEnd == null || item.User.LockoutEnd < DateTime.UtcNow)
                             {
                                 <td class="text-end text-nowrap">
-                                    <a asp-action="LockUnLock" asp-route-id="@item.Id" class="btn btn-danger btn-lg">
+                                    <a asp-action="LockUnLock" asp-route-id="@item.User.Id" class="btn btn-danger btn-lg">
                                         <i class=""></i> Lock
                                     </a>
                                 </td>
@@ -63,11 +71,16 @@
                             else
                             {
                                 <td class="text-end text-nowrap">
-                                    <a asp-action="LockUnLock" asp-route-id="@item.Id" class="btn btn-success btn-lg">
+                                    <a asp-action="LockUnLock" asp-route-id="@item.User.Id" class="btn btn-success btn-lg">
                                         <i class=""></i> UnLock
                                     </a>
                                 </td>
                             }
+                            <td class="text-end text-nowrap">
+                                <a asp-action="UpdateUser" asp-route-id="@item.User.Id" class="btn btn-success btn-lg">
+                                    <i class=""></i> Update
+                                </a>
+                            </td>
                         </tr>
                     }
                 </tbody>

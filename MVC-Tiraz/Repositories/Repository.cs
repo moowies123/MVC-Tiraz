@@ -11,14 +11,21 @@ namespace TIRAZ.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null, params string[] includes)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
             IQueryable<T> query = _dbSet;
-            foreach (var include in includes) query = query.Include(include);
-            if (predicate != null) query = query.Where(predicate);
             return await query.ToListAsync();
         }
-          
+
+        public async Task<IEnumerable<T>> GetAllIncludingAsync(Expression<Func<T, bool>>? predicate = null, Expression<Func<T, object>>[]? includes = null, params string[] includePaths)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var path in includePaths) query = query.Include(path);
+            if (predicate != null) query = query.Where(predicate);
+
+            return await query.ToListAsync();
+        }
 
         public async Task<T?> GetByIdAsync(int id) =>
             await _dbSet.FindAsync(id);

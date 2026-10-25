@@ -5,7 +5,8 @@ namespace TIRAZ.Repositories
     public interface IRepository<T> where T : class
     {
         
-        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null, params string[] includes);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAllIncludingAsync(Expression<Func<T, bool>>? predicate = null, Expression<Func<T, object>>[]? includes = null, params string[] includePaths);
         Task<T?> GetByIdAsync(int id);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);

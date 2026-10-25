@@ -2,7 +2,38 @@
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // The chart shows the 8 best sellers. The table lists every product, with pages.
+    var chartProducts = Model.Product
+        .OrderByDescending(p => p.SalesCount * p.Price)
+        .Take(8)
+        .ToList();
 }
+
+<style>
+    /* The chart card and the table card always have the same height */
+    .dash-card {
+        height: 461px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dash-card .card-body {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    /* black page buttons, like the other admin buttons */
+    .pagination .page-link {
+        color: #212529;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #212529;
+        border-color: #212529;
+        color: #fff;
+    }
+</style>
 
 <!-- Summary cards -->
 <div class="row g-3 mb-4">
@@ -44,19 +75,20 @@
 <div class="row g-3">
     <!-- Chart -->
     <div class="col-lg-7">
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 dash-card">
             <div class="card-header bg-white fw-bold">Sales by Product</div>
-            <div class="card-body">
-                <canvas id="salesChart" height="130"></canvas>
+            <div class="card-body position-relative">
+                <canvas id="salesChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Table -->
+    <!-- Table with pages -->
     <div class="col-lg-5">
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 dash-card">
             <div class="card-header bg-white fw-bold">Product Details</div>
-            <div class="card-body p-0">
+
+            <div class="card-body p-0 overflow-auto">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
@@ -65,17 +97,46 @@
                             <th>Sales</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="productRows">
+                        @if (!Model.Product.Any())
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No products yet.</td>
+                            </tr>
+                        }
+
                         @foreach (var item in Model.Product)
                         {
                             <tr>
                                 <td>@item.Name</td>
-                                <td>@item.TotalStock</td> 
+                                <td>@item.TotalStock</td>
                                 <td>@item.SalesCount</td>
                             </tr>
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <!-- the strip under the rows, where the page buttons live -->
+            <div class="card-footer bg-white py-2 d-flex align-items-center justify-content-center" style="min-height: 52px;">
+                <ul class="pagination pagination-sm mb-0" id="productPager"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users chart -->
+<div class="row g-3 mt-1">
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between">
+                <span>Users by Role</span>
+                <span class="text-muted fw-normal">Total: @Model.UsersByRole.Values.Sum()</span>
+            </div>
+            <div class="card-body">
+                <div class="mx-auto" style="max-width: 320px;">
+                    <canvas id="usersChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -84,8 +145,8 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script>
-        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Product.Select(p => p.Name)));
-        const sales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Product.Select(p => p.SalesCount * p.Price)));
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartProducts.Select(p => p.Name)));
+        const sales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartProducts.Select(p => p.SalesCount * p.Price)));
 
         new Chart(document.getElementById('salesChart'), {
             type: 'line',
@@ -102,9 +163,82 @@
                 }]
             },
             options: {
+                maintainAspectRatio: false,   // fill the card instead of keeping a fixed shape
                 plugins: { legend: { display: false } },
                 scales: { y: { beginAtZero: true } }
             }
         });
+
+        // Users by role
+        const roleLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UsersByRole.Keys.ToList()));
+        const roleCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UsersByRole.Values.ToList()));
+
+        new Chart(document.getElementById('usersChart'), {
+            type: 'doughnut',
+            data: {
+                labels: roleLabels,
+                datasets: [{
+                    data: roleCounts,
+                    backgroundColor: ['#dc3545', '#0d6efd', '#ffc107', '#198754', '#6c757d']
+                }]
+            },
+            options: {
+                cutout: '60%',
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // ----- pages for the product table -----
+        const pageSize = 8;   // rows per page. Change it if you resize the cards.
+        const rows = Array.from(document.querySelectorAll("#productRows tr"));
+        const pager = document.getElementById("productPager");
+        const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+        let currentPage = 1;
+
+        function showPage(page) {
+            currentPage = Math.min(Math.max(page, 1), totalPages);
+
+            rows.forEach(function (row, i) {
+                const onThisPage = i >= (currentPage - 1) * pageSize && i < currentPage * pageSize;
+                row.classList.toggle("d-none", !onThisPage);
+            });
+
+            drawPager();
+        }
+
+        function pageItem(label, page, disabled, active) {
+            const li = document.createElement("li");
+            li.className = "page-item" + (disabled ? " disabled" : "") + (active ? " active" : "");
+
+            const a = document.createElement("a");
+            a.className = "page-link";
+            a.href = "#";
+            a.textContent = label;
+            a.addEventListener("click", function (e) {
+                e.preventDefault();
+                if (!disabled) showPage(page);
+            });
+
+            li.appendChild(a);
+            return li;
+        }
+
+        function drawPager() {
+            pager.innerHTML = "";
+            if (totalPages <= 1) return;   // one page needs no buttons
+
+            pager.appendChild(pageItem("«", currentPage - 1, currentPage === 1, false));
+
+            // show at most 5 page numbers around the current page
+            const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+            const end = Math.min(totalPages, start + 4);
+
+            for (let p = start; p <= end; p++)
+                pager.appendChild(pageItem(String(p), p, false, p === currentPage));
+
+            pager.appendChild(pageItem("»", currentPage + 1, currentPage === totalPages, false));
+        }
+
+        showPage(1);
     </script>
 }

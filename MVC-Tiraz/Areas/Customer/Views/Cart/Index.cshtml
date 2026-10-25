@@ -1,0 +1,68 @@
+﻿@model List<MVC_Tiraz.ViewModels.CartItemVM>
+@{
+    Layout = null;
+    var total = Model.Sum(i => i.LineTotal);
+    var error = TempData["Error_Notification"] as string;
+    var success = TempData["Successful_Notification"] as string;
+}
+
+@if (Model.Count == 0)
+{
+    <p class="panel-empty cart-empty">Your cart is empty.</p>
+    @if (error != null) { <p class="cart-msg error">@error</p> }
+    @if (success != null) { <p class="cart-msg">@success</p> }
+}
+else
+{
+    <div class="cart-wrap">
+        <ul class="cart-list">
+            @foreach (var item in Model)
+            {
+                <li class="cart-item">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img class="cart-img" src="@Url.Content(item.ImageUrl)" alt="@item.ProductName" />
+                    }
+                    else
+                    {
+                        <div class="cart-img fabric-gray"></div>
+                    }
+
+                    <div class="cart-info">
+                        <p class="cart-name">@item.ProductName</p>
+                        <p class="cart-variant">@item.Size &middot; @item.Color</p>
+                        <p class="cart-qty">@item.UnitPrice.ToString("C2") &times; @item.Quantity</p>
+                    </div>
+
+                    <div class="cart-side">
+                        <span class="cart-line">@item.LineTotal.ToString("C2")</span>
+
+                        <form method="post" action="/Customer/Cart/Remove">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productColorId" value="@item.ProductColorId" />
+                            <button type="submit" class="cart-remove" aria-label="Remove @item.ProductName">Remove</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+
+        <div class="cart-footer">
+            @if (error != null) { <p class="cart-msg error">@error</p> }
+@if (success != null) { <p class="cart-msg">@success</p> }
+    <div class="cart-total">
+        <span>Total</span>
+        <strong>@total.ToString("C2")</strong>
+    </div>
+
+    <form method="post" action="/Customer/Cart/ApplyPromo" class="promo">
+        @Html.AntiForgeryToken()
+        <input type="text" name="promotionCode" placeholder="Promo code" maxlength="30"
+               autocomplete="off" aria-label="Promo code" />
+        <button type="submit">Apply</button>
+    </form>
+
+    <a href="/Customer/Cart/Pay" class="btn-cart cart-checkout">Checkout</a>
+</div>
+    </div>
+}

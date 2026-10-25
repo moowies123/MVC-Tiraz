@@ -140,6 +140,12 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
                 return RedirectToAction("Login");
             }
 
+            if(user.LockoutEnd != null || user.LockoutEnd < DateTime.UtcNow)
+            {
+                TempData["Error"] = "You are lockedout";
+                return View(vm);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(user, vm.Password, vm.RememberMe, true);
 
             if (!result.Succeeded)
@@ -174,7 +180,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
 
 
 
-            var otps = await _applicationUserOtpRepository.GetAllAsync(o => o.ApplicationUserId == user.Id);
+            var otps = await _applicationUserOtpRepository.GetAllIncludingAsync(o => o.ApplicationUserId == user.Id);
 
             var count = otps.Count(o => (DateTime.Now - o.CreatedDate).TotalHours <= 24);
             if (count > 5)
@@ -237,7 +243,7 @@ namespace MVC_Tiraz.Areas.Identity.Controllers
                 return View(vm);
             }
 
-            var otps = await _applicationUserOtpRepository.GetAllAsync(o =>
+            var otps = await _applicationUserOtpRepository.GetAllIncludingAsync(o =>
                 o.ApplicationUserId == user.Id.ToString() &&
                 o.IsValid == true &&
                 o.ValidTo >= DateTime.Now

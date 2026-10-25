@@ -24,7 +24,7 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width: 70px;">Id</th>
-                        <th style="width: 80px;">Image</th>
+                        <th style="width: 80px;">Images</th>
                         <th>Name</th>
                         <th>Category</th>
                         <th>Price</th>
@@ -49,9 +49,9 @@
                             <td>@item.ProductId</td>
 
                             <td>
-                                @if (!string.IsNullOrEmpty(item.Image))
+                                @if (!string.IsNullOrEmpty(item.Images.FirstOrDefault()?.Url))
                                 {
-                                    <img src="@item.Image" alt="@item.Name" class="rounded border"
+                                    <img src="@item.Images.FirstOrDefault()?.Url" alt="@item.Name" class="rounded border"
                                          style="width: 48px; height: 48px; object-fit: cover;" />
                                 }
                                 else

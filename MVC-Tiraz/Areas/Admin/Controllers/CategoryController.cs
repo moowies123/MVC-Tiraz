@@ -68,13 +68,11 @@
                 return View(category);
             }
 
-            var existingCategory =
-                await _categoryRepository.GetByIdAsync(category.CategoryId);
+            var existingCategory = await _categoryRepository.GetByIdAsync(category.CategoryId);
 
             if (existingCategory == null)
             {
-                return RedirectToAction("NotFoundPage", "Home",
-                    new { area = "" });
+                return RedirectToAction("NotFoundPage", "Home", new { area = "" });
             }
 
             existingCategory.Name = category.Name;
@@ -82,8 +80,7 @@
 
             await _categoryRepository.SaveChangesAsync();
 
-            TempData["Successful_Notification"] =
-                "Category Updated Successfully";
+            TempData["Successful_Notification"] = "Category Updated Successfully";
 
             return RedirectToAction(nameof(Index));
         }
@@ -97,8 +94,7 @@
 
             if (category == null)
             {
-                return RedirectToAction("NotFoundPage", "Home",
-                    new { area = "" });
+                return RedirectToAction("NotFoundPage", "Home", new { area = "" });
             }
             try
             {
@@ -106,8 +102,7 @@
 
                 await _categoryRepository.SaveChangesAsync();
 
-                TempData["Successful_Notification"] =
-                    "Category Deleted Successfully";
+                TempData["Successful_Notification"] = "Category Deleted Successfully";
             }
             catch (DbUpdateException)
             {

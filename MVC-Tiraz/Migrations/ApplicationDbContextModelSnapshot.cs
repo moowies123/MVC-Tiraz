@@ -17,7 +17,7 @@ namespace MVC_Tiraz.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -49,6 +49,95 @@ namespace MVC_Tiraz.Migrations
                     b.HasIndex("ApplicationUserId");
 
                     b.ToTable("applicationUserOtps");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.Cart", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProductColorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PromotionCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("PromotionDiscount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ProductId", "UserId", "ProductColorId");
+
+                    b.HasIndex("ProductColorId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.ProductImage", b =>
+                {
+                    b.Property<int>("ProductImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductImageId"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductImageId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.Promotion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxUsage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ValidTo")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ApplicationUser", b =>
@@ -126,26 +215,6 @@ namespace MVC_Tiraz.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Cart", b =>
-                {
-                    b.Property<int>("CartId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("CartId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Category", b =>
@@ -264,9 +333,6 @@ namespace MVC_Tiraz.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<int?>("CartId")
-                        .HasColumnType("int");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -274,9 +340,8 @@ namespace MVC_Tiraz.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal?>("Discount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Material")
                         .IsRequired()
@@ -290,12 +355,13 @@ namespace MVC_Tiraz.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("Rate")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
                     b.HasKey("ProductId");
-
-                    b.HasIndex("CartId");
 
                     b.HasIndex("CategoryId");
 
@@ -543,15 +609,53 @@ namespace MVC_Tiraz.Migrations
                     b.Navigation("applicationUser");
                 });
 
-            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Cart", b =>
+            modelBuilder.Entity("MVC_Tiraz.Models.Cart", b =>
                 {
-                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.ApplicationUser", "User")
-                        .WithOne("Cart")
-                        .HasForeignKey("MVC_Tiraz.Models.TIRAZ.Models.Cart", "UserId")
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.ProductColor", "ProductColor")
+                        .WithMany()
+                        .HasForeignKey("ProductColorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.ApplicationUser", "User")
+                        .WithOne("Cart")
+                        .HasForeignKey("MVC_Tiraz.Models.Cart", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductColor");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.ProductImage", b =>
+                {
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("MVC_Tiraz.Models.Promotion", b =>
+                {
+                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Contains", b =>
@@ -616,10 +720,6 @@ namespace MVC_Tiraz.Migrations
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Product", b =>
                 {
-                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Cart", null)
-                        .WithMany("Products")
-                        .HasForeignKey("CartId");
-
                     b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
@@ -753,11 +853,6 @@ namespace MVC_Tiraz.Migrations
                     b.Navigation("Wishlists");
                 });
 
-            modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Cart", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Category", b =>
                 {
                     b.Navigation("Products");
@@ -773,6 +868,8 @@ namespace MVC_Tiraz.Migrations
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.Product", b =>
                 {
                     b.Navigation("HasCustomers");
+
+                    b.Navigation("Images");
 
                     b.Navigation("Orders");
 

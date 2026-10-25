@@ -1,0 +1,322 @@
+﻿@model Product
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = null;
+
+    var images = Model.Images.OrderBy(i => i.ProductImageId).Select(i => i.Url).ToList();
+    var hasDiscount = Model.Discount > 0;
+    var finalPrice = Model.Price - Model.Price * (Model.Discount ?? 0) / 100;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@Model.Name - TIRAZ</title>
+    <link rel="stylesheet" href="@Url.Content("~/css/home.css")?v=2" />
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <!-- menu button (three lines) -->
+            <button type="button" class="icon-btn menu-btn" id="menuBtn"
+                    aria-label="Open menu" aria-controls="menuPanel" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+            </button>
+        </div>
+
+        <a class="brand" href="/">TIRAZ</a>
+
+        <div class="topbar-right">
+            <!-- cart button -->
+            <button type="button" class="icon-btn" id="cartBtn"
+                    aria-label="Open cart" aria-controls="cartPanel" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6" /><circle cx="9.5" cy="20" r="1.3" /><circle cx="17" cy="20" r="1.3" /></svg>
+            </button>
+
+            <!-- profile circle + dropdown -->
+            <div class="profile">
+                <button type="button" class="icon-btn profile-btn" id="profileBtn"
+                        aria-label="Account menu" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" /></svg>
+                </button>
+
+                <div class="dropdown" id="profileMenu" role="menu">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a class="item" role="menuitem" href="/Identity/Profile/UserInfo">Account</a>
+
+                        <form method="post" action="/Identity/Account/Logout">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="item" role="menuitem">Log out</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="item" role="menuitem" href="/Identity/Account/Login">Login / Register</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="overlay" id="overlay"></div>
+
+    <aside class="panel panel-left" id="menuPanel" aria-label="Menu" aria-hidden="true">
+        <div class="panel-head">
+            <span class="panel-title">MENU</span>
+            <button type="button" class="icon-btn" data-close aria-label="Close menu">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+        </div>
+
+        <nav class="panel-links">
+            <a href="/">Home</a>
+            <a href="#">Shop</a>
+            <a href="#">New In</a>
+            <a href="#">About</a>
+            @if (User.IsInRole(CD.SUPER_ADMIN_ROLE) || User.IsInRole(CD.ADMIN_ROLE) || User.IsInRole(CD.EMPLOYEE_ROLE))
+            {
+                <a class="nav-link text-dark" href="/Admin/Home/DashBoard">Admin</a>
+            }
+        </nav>
+    </aside>
+
+    <aside class="panel panel-right" id="cartPanel" aria-label="Cart" aria-hidden="true">
+        <div class="panel-head">
+            <span class="panel-title">YOUR CART</span>
+            <button type="button" class="icon-btn" data-close aria-label="Close cart">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+        </div>
+
+        <div class="panel-body cart-body" id="cartBody">
+            <p class="panel-empty">Your cart is empty.</p>
+        </div>
+    </aside>
+
+
+    <main class="details">
+
+        <!-- photos -->
+        <section class="gallery">
+            <div class="gallery-main">
+                @if (images.Count > 0)
+                {
+                    <img id="mainImage" src="@Url.Content(images[0])" alt="@Model.Name" />
+                }
+                else
+                {
+                    <div class="bg fabric-gray"></div>
+                }
+            </div>
+
+            @if (images.Count > 1)
+            {
+                <div class="gallery-thumbs">
+                    @foreach (var url in images)
+                    {
+                        <button type="button" class="thumb" data-src="@Url.Content(url)">
+                            <img src="@Url.Content(url)" alt="" />
+                        </button>
+                    }
+                </div>
+            }
+        </section>
+
+        <!-- info -->
+        <section class="info">
+            <h1>@Model.Name</h1>
+
+            <div class="price-row">
+                <span class="price">@($"{finalPrice:C2}")</span>
+                @if (hasDiscount)
+                {
+                    <span class="old-price">@($"{Model.Price:C2}")</span>
+                    <span class="discount-badge">-@Model.Discount%</span>
+                }
+            </div>
+
+            <ul class="tag-container">
+                <li class="tag">@Model.Category.Name</li>
+                @if (!string.IsNullOrWhiteSpace(Model.Material))
+                {
+                    <li class="tag">@Model.Material</li>
+                }
+            </ul>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p class="description">@Model.Description</p>
+            }
+
+           <form method="post" action="/Customer/Cart/AddToCart" id="cartForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="productId" value="@Model.ProductId" />
+
+    <h2>Choose size &amp; color</h2>
+    @foreach (var size in Model.Sizes.OrderBy(s => s.ProductSizeId))
+    {
+        <div class="size-row">
+            <span class="size-name">@size.Size</span>
+            <div class="color-list">
+                @foreach (var color in size.Colors.OrderBy(c => c.ProductColorId))
+                {
+                    <label class="color-chip @(color.Quantity == 0 ? "sold-out" : "")">
+                        <input type="radio" name="productColorId" value="@color.ProductColorId"
+                               data-stock="@color.Quantity" disabled="@(color.Quantity == 0)" />
+                        <span>@color.Color</span>
+                        @if (color.Quantity == 0)
+                        {
+                            <small>sold out</small>
+                        }
+                    </label>
+                }
+            </div>
+        </div>
+    }
+    <form asp-action="AddToCart" asp-controller="Cart">
+        <div class="buy-row">
+            <input name="productId" value="@Model.ProductId" hidden/>
+            <input type="number" name="count" id="qty" value="1" min="1" max="1" aria-label="Quantity" />
+            <button type="submit" class="btn-cart">Add to Cart</button>
+        </div>
+    </form>
+    <p class="cart-msg" id="cartMsg"></p>
+</form>
+        </section>
+    </main>
+
+    <script>
+            (function () {
+                var body = document.body;
+                var overlay = document.getElementById("overlay");
+
+                var profileBtn = document.getElementById("profileBtn");
+                var profileMenu = document.getElementById("profileMenu");
+                var profile = profileBtn.parentElement;
+
+                var panels = [
+                    { btn: document.getElementById("menuBtn"), el: document.getElementById("menuPanel") },
+                    { btn: document.getElementById("cartBtn"), el: document.getElementById("cartPanel") }
+                ];
+
+                // ----- profile dropdown -----
+                function setProfile(open) {
+                    profileMenu.classList.toggle("open", open);
+                    profileBtn.setAttribute("aria-expanded", open ? "true" : "false");
+                }
+
+                profileBtn.addEventListener("click", function () {
+                    setProfile(!profileMenu.classList.contains("open"));
+                });
+
+                document.addEventListener("click", function (e) {
+                    if (!profile.contains(e.target)) setProfile(false);
+                });
+
+                // ----- sidebars -----
+                function closePanels(returnFocus) {
+                    panels.forEach(function (p) {
+                        if (returnFocus && p.el.classList.contains("open")) p.btn.focus();
+                        p.el.classList.remove("open");
+                        p.el.setAttribute("aria-hidden", "true");
+                        p.btn.setAttribute("aria-expanded", "false");
+                    });
+                    overlay.classList.remove("show");
+                    body.classList.remove("no-scroll");
+                    body.style.paddingRight = "";
+                }
+
+                function openPanel(p) {
+                    setProfile(false);
+                    closePanels(false);
+
+                    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
+                    if (scrollbar > 0) body.style.paddingRight = scrollbar + "px";
+
+                    p.el.classList.add("open");
+                    p.el.setAttribute("aria-hidden", "false");
+                    p.btn.setAttribute("aria-expanded", "true");
+                    overlay.classList.add("show");
+                    body.classList.add("no-scroll");
+                    p.el.querySelector("[data-close]").focus();
+                }
+
+                panels.forEach(function (p) {
+                    p.btn.addEventListener("click", function () { openPanel(p); });
+                    p.el.querySelector("[data-close]").addEventListener("click", function () { closePanels(true); });
+                });
+
+                overlay.addEventListener("click", function () { closePanels(true); });
+
+                document.addEventListener("keydown", function (e) {
+                    if (e.key !== "Escape") return;
+
+                    if (profileMenu.classList.contains("open")) {
+                        setProfile(false);
+                        profileBtn.focus();
+                    }
+                    closePanels(true);
+                });
+
+                // ----- cart contents: load on open, refresh after Remove / Apply without closing -----
+                var cartBody = document.getElementById("cartBody");
+
+                function showCart(url, options) {
+                    return fetch(url, options)
+                        .then(function (r) {
+                            if (r.url.indexOf("/Identity/Account/Login") !== -1) {
+                                cartBody.innerHTML = '<p class="panel-empty">Please <a href="/Identity/Account/Login">log in</a> to see your cart.</p>';
+                                return null;
+                            }
+                            return r.ok ? r.text() : Promise.reject();
+                        })
+                        .then(function (html) { if (html !== null) cartBody.innerHTML = html; })
+                        .catch(function () { cartBody.innerHTML = '<p class="panel-empty">Could not load your cart.</p>'; });
+                }
+
+                document.getElementById("cartBtn").addEventListener("click", function () {
+                    showCart("/Customer/Cart/Index");
+                });
+
+                cartBody.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    showCart(e.target.action, {
+                        method: "POST",
+                        body: new FormData(e.target),
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                });
+
+                // ----- thumbnails: click one to show it as the big photo -----
+                var main = document.getElementById("mainImage");
+                document.querySelectorAll(".thumb").forEach(function (t) {
+                    t.addEventListener("click", function () { main.src = t.dataset.src; });
+                });
+
+                // ----- add to cart -----
+                var qty = document.getElementById("qty");
+                var msg = document.getElementById("cartMsg");
+                var cartForm = document.getElementById("cartForm");
+
+                // choosing a color limits the quantity to that color's stock
+                cartForm.querySelectorAll('input[name="productColorId"]').forEach(function (r) {
+                    r.addEventListener("change", function () {
+                        var stock = parseInt(r.dataset.stock, 10);
+                        qty.max = stock;
+                        if (parseInt(qty.value, 10) > stock) qty.value = stock;
+                        msg.textContent = stock + " in stock";
+                    });
+                });
+
+                cartForm.addEventListener("submit", function (e) {
+                    if (!cartForm.querySelector('input[name="productColorId"]:checked')) {
+                        e.preventDefault();
+                        msg.textContent = "Please choose a size and color first.";
+                    }
+                });
+            })();
+    </script>
+</body>
+</html>
