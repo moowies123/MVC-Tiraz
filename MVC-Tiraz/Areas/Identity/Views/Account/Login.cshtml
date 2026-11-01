@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tiraz - Sign In</title>
+    <title>TIRAZ - Sign In</title>
     <style>
             * {
                 box-sizing: border-box;
@@ -15,21 +15,34 @@
 
             body {
                 margin: 0;
-                background: #fff;
-                color: #212529;
-                font-family: Arial, sans-serif;
+                background: #ffffff;
+                color: #111111;
+                font-family: Arial, Helvetica, sans-serif;
             }
 
             .box {
-                max-width: 380px;
-                margin: 60px auto;
-                padding: 0 20px;
+                width: calc(100% - 32px);
+                max-width: 440px;
+                margin: 36px auto;
+                padding: 32px;
+                border: 1px solid #111111;
+                background: #ffffff;
+            }
+
+            .brand {
+                margin: 0 0 8px;
+                text-align: center;
+                font-size: 30px;
+                font-weight: 800;
+                letter-spacing: 5px;
+                color: #000000;
             }
 
             h1 {
-                margin: 0 0 24px;
-                font-size: 26px;
+                margin: 0 0 28px;
                 text-align: center;
+                font-size: 22px;
+                font-weight: 600;
             }
 
             .field {
@@ -38,39 +51,42 @@
 
                 .field label {
                     display: block;
-                    margin-bottom: 6px;
+                    margin-bottom: 7px;
                     font-size: 14px;
-                    font-weight: bold;
+                    font-weight: 600;
                 }
 
-                .field input {
+                .field input:not([type="checkbox"]) {
                     width: 100%;
-                    padding: 10px 12px;
-                    border: 1px solid #ced4da;
-                    border-radius: 6px;
+                    padding: 12px;
+                    border: 1px solid #bdbdbd;
+                    border-radius: 0;
+                    background: #ffffff;
+                    color: #111111;
                     font-size: 15px;
                 }
 
-                    .field input:focus {
-                        outline: none;
-                        border-color: #0d6efd;
-                        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
-                    }
+                .field input:focus {
+                    outline: 2px solid #111111;
+                    outline-offset: 1px;
+                    border-color: #111111;
+                }
 
-                    .field input.input-validation-error {
-                        border-color: #dc3545;
-                    }
+                .field input.input-validation-error {
+                    border-color: #111111;
+                    border-width: 2px;
+                }
 
                 .field .field-validation-error {
                     display: block;
                     margin-top: 5px;
-                    color: #dc3545;
+                    color: #111111;
                     font-size: 13px;
                 }
 
             .summary {
                 margin-bottom: 16px;
-                color: #dc3545;
+                color: #111111;
                 font-size: 14px;
             }
 
@@ -83,6 +99,8 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                flex-wrap: wrap;
+                gap: 12px;
                 margin-bottom: 20px;
                 font-size: 14px;
             }
@@ -90,42 +108,47 @@
             .check {
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 7px;
                 cursor: pointer;
             }
 
-            a {
-                color: #0d6efd;
-                text-decoration: none;
-            }
-
-                a:hover {
-                    text-decoration: underline;
+                .check input {
+                    accent-color: #000000;
                 }
+
+            a {
+                color: #000000;
+                font-weight: 600;
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
 
             button {
                 width: 100%;
-                padding: 11px;
-                border: none;
-                border-radius: 6px;
-                background: #0d6efd;
-                color: #fff;
-                font-size: 16px;
-                font-weight: bold;
+                margin-top: 8px;
+                padding: 13px;
+                border: 1px solid #000000;
+                border-radius: 0;
+                background: #000000;
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 700;
                 cursor: pointer;
+                transition: background 0.15s ease, color 0.15s ease;
             }
 
                 button:hover {
-                    background: #0b5ed7;
+                    background: #ffffff;
+                    color: #000000;
                 }
 
             .switch {
-                margin-top: 20px;
+                margin: 22px 0 0;
                 text-align: center;
                 font-size: 14px;
+                line-height: 1.6;
             }
 
-            /* toast (messages set with TempData) */
             .app-toast {
                 position: fixed;
                 top: 20px;
@@ -135,26 +158,33 @@
                 align-items: center;
                 gap: 14px;
                 padding: 12px 16px;
-                border-radius: 6px;
-                color: #fff;
-                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+                border: 1px solid #000000;
+                background: #ffffff;
+                color: #000000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             }
 
-            .app-toast-success {
-                background: #198754;
-            }
-
+            .app-toast-success,
             .app-toast-error {
-                background: #dc3545;
+                background: #ffffff;
+                color: #000000;
             }
 
-            .app-toast button.app-toast-close {
+            button.app-toast-close {
                 width: auto;
                 margin: 0;
                 padding: 0;
-                background: none;
-                color: inherit;
+                border: 0;
+                background: transparent;
+                color: #000000;
                 font-size: 20px;
+            }
+
+            media (max-width: 480px) {
+                .box {
+                    margin: 16px auto;
+                    padding: 24px 20px;
+                }
             }
     </style>
 </head>
@@ -162,6 +192,7 @@
     <partial name="_Toast" />
 
     <div class="box">
+        <div class="brand">TIRAZ</div>
         <h1>Sign In</h1>
 
         <form asp-action="Login" method="post" novalidate>

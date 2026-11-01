@@ -82,6 +82,11 @@
                 .WithMany()
                 .HasForeignKey(c => c.ProductColorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Carts)
+            .HasForeignKey(c => c.UserId);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace MVC_Tiraz.Models
 {
-    [PrimaryKey(nameof(ProductId), nameof(UserId), nameof(ProductColorId))]
+    [PrimaryKey(nameof(ProductId), nameof(ProductColorId))]
     public class Cart
     {
         public string UserId { get; set; }
