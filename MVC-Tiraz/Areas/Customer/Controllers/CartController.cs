@@ -68,7 +68,7 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
                 return BackToCart();
             }
 
-            var lines = (await _cartRepository.FindAsync(c => c.UserId == userId && c.ProductId == promotion.ProductId)).ToList();
+            var lines = (await _cartRepository.FindAsync(c => c.UserId == userId)).ToList();
 
             if (lines.Count == 0)
             {

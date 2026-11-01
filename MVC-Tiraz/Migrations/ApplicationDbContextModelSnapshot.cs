@@ -56,9 +56,6 @@ namespace MVC_Tiraz.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("ProductColorId")
                         .HasColumnType("int");
 
@@ -74,12 +71,15 @@ namespace MVC_Tiraz.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("ProductId", "UserId", "ProductColorId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ProductId", "ProductColorId");
 
                     b.HasIndex("ProductColorId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Carts");
                 });
@@ -127,15 +127,10 @@ namespace MVC_Tiraz.Migrations
                     b.Property<int>("MaxUsage")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("ValidTo")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Promotions");
                 });
@@ -624,8 +619,8 @@ namespace MVC_Tiraz.Migrations
                         .IsRequired();
 
                     b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.ApplicationUser", "User")
-                        .WithOne("Cart")
-                        .HasForeignKey("MVC_Tiraz.Models.Cart", "UserId")
+                        .WithMany("Carts")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -640,17 +635,6 @@ namespace MVC_Tiraz.Migrations
                 {
                     b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
                         .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("MVC_Tiraz.Models.Promotion", b =>
-                {
-                    b.HasOne("MVC_Tiraz.Models.TIRAZ.Models.Product", "Product")
-                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -842,7 +826,7 @@ namespace MVC_Tiraz.Migrations
 
             modelBuilder.Entity("MVC_Tiraz.Models.TIRAZ.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Cart");
+                    b.Navigation("Carts");
 
                     b.Navigation("HasProducts");
 

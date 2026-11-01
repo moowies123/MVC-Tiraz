@@ -7,7 +7,7 @@
             public required string FirstName { get; set; }
             public required string LastName { get; set; }
             public required string Address { get; set; }
-            public Cart? Cart { get; set; }
+            public ICollection<Cart> Carts { get; set; } = new List<Cart>();
             public ICollection<Order> Orders { get; set; } = new List<Order>();
             public ICollection<Has> HasProducts { get; set; } = new List<Has>();
             public ICollection<Review> Reviews { get; set; } = new List<Review>();
