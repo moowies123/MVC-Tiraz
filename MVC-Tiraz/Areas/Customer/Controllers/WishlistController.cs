@@ -1,14 +1,7 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using MVC_Tiraz.Models;
-using TIRAZ.Repositories;
-
-namespace MVC_Tiraz.Areas.Customer.Controllers
+﻿namespace MVC_Tiraz.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = CD.CUSTOMER_ROLE)]
+    [Authorize]
     public class WishlistController : Controller
     {
         private readonly IRepository<Wishlist> _wishlistRepository;
@@ -35,7 +28,7 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
 
             var wishlist = await _wishlistRepository.GetAllIncludingAsync(
                 w => w.UserId == userId,
-                includePaths: ["Product", "Product.Images", "Product.Category" , "Product.sizes"]
+                includePaths: ["Product", "Product.Images", "Product.Category" , "Product.Sizes"]
             );
 
             return View(wishlist);
@@ -72,7 +65,7 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
                 await _wishlistRepository.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

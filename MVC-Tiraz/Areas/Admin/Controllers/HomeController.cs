@@ -24,7 +24,9 @@
         public async Task<IActionResult> DashBoard()
         {
             var orders = await _orderRepository.GetAllAsync();
-            var products = await _productRepository.GetAllAsync();
+            var products = await _productRepository.GetAllIncludingAsync(
+                p => true,
+                includePaths: "Sizes.Colors");
             var contains = await _containsRepository.GetAllAsync();
 
             var soldPerProduct = contains

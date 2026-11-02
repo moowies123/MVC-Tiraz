@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Customer\Views\Wishlist\" />
     <Folder Include="wwwroot\images\products\" />
   </ItemGroup>
 

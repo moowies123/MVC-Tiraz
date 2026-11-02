@@ -1,0 +1,33 @@
+/* Dark mode: flips the colour variables used by home.css */
+html[data-theme="dark"] {
+	--color-scheme: dark;
+	--black: #f2f2f2;
+	--white: #0d0d0d;
+	--soft: #1c1c1c;
+	color-scheme: dark;
+}
+html[data-theme="dark"] body { background: #0d0d0d; color: #f2f2f2; }
+html[data-theme="dark"] .search input::placeholder { color: #9a9a9a; }
+html[data-theme="dark"] .heart-btn svg path { fill: #f2f2f2; stroke: #f2f2f2; }
+html[data-theme="dark"] .heart-btn:hover { background: #f2f2f2; }
+html[data-theme="dark"] .heart-btn:hover svg path { fill: #0d0d0d; stroke: #0d0d0d; }
+
+/* buttons that were hard-coded black/white */
+html[data-theme="dark"] .btn-wish { color: #f2f2f2; border-color: #f2f2f2; }
+html[data-theme="dark"] .btn-wish:hover { background: #f2f2f2; color: #0d0d0d; }
+
+/* footer */
+html[data-theme="dark"] .site-footer { background: #141414; color: #f2f2f2; border-top-color: #2a2a2a; }
+html[data-theme="dark"] .footer-copy { border-top-color: #2a2a2a; }
+html[data-theme="dark"] .social-icons a { color: #f2f2f2; border-color: #f2f2f2; }
+html[data-theme="dark"] .social-icons a:hover { background: #f2f2f2; color: #0d0d0d; }
+
+/* wishlist page */
+html[data-theme="dark"] .wl-card, html[data-theme="dark"] .wl-empty { background: #1c1c1c; }
+html[data-theme="dark"] .wl-photo { background: #2a2a2a; }
+html[data-theme="dark"] .wl-btn { background: #f2f2f2; color: #0d0d0d; border-color: #f2f2f2; }
+html[data-theme="dark"] .wl-btn:hover { background: transparent; color: #f2f2f2; }
+html[data-theme="dark"] .wl-btn-outline { background: transparent; color: #f2f2f2; }
+html[data-theme="dark"] .wl-btn-outline:hover { background: #f2f2f2; color: #0d0d0d; }
+
+.theme-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
