@@ -13,6 +13,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TIRAZ</title>
     <link rel="stylesheet" href="@Url.Content("~/css/home.css")?v=1" />
+    <link rel="stylesheet" href="@Url.Content("~/css/footer.css")?v=1" />
+    <style>
+            .wish-form {
+                margin: 12px 0 0;
+            }
+
+            .btn-wish {
+                height: 42px;
+                padding: 0 20px;
+                border: 1.5px solid #000;
+                border-radius: 999px;
+                background: transparent;
+                color: #000;
+                font: inherit;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background .15s, color .15s;
+            }
+
+                .btn-wish:hover {
+                    background: #000;
+                    color: #fff;
+                }
+
+            .heart-btn {
+                background: transparent;
+            }
+
+                .heart-btn svg path {
+                    fill: #000;
+                    stroke: #000;
+                    transition: fill .15s, stroke .15s;
+                }
+
+                .heart-btn:hover {
+                    background: #000;
+                }
+
+                    .heart-btn:hover svg path {
+                        fill: #fff;
+                        stroke: #fff;
+                    }
+
+            /* ===== hero: two photos side by side, with a light fog and a line in the middle ===== */
+            .hero {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                height: 90vh;
+                min-height: 340px;
+                position: relative;
+                z-index: 0;
+                overflow: hidden;
+                background: #000;
+            }
+
+                .hero img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    object-position: center 20%;
+                    display: block;
+                }
+
+                /* the fog: a soft haze over both photos */
+                .hero::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                    background: radial-gradient(ellipse at center, rgba(255, 255, 255, .22), transparent 70%), linear-gradient(rgba(20, 20, 20, .38), rgba(20, 20, 20, .5));
+                    backdrop-filter: blur(1.5px);
+                }
+
+            .hero-line {
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+                display: grid;
+                place-items: center;
+                margin: 0;
+                padding: 0 20px;
+                text-align: center;
+                color: #fff;
+                font-family: "Bowlby One", sans-serif;
+                font-weight: 400;
+                font-size: clamp(1.6rem, 5vw, 4rem);
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                text-shadow: 0 4px 24px rgba(0, 0, 0, .45);
+                pointer-events: none;
+            }
+
+            /* make sure the shop starts below the hero */
+            .shop {
+                position: relative;
+                margin-top: 0;
+            }
+
+            @@media (max-width: 600px) {
+                .hero {
+                    grid-template-columns: 1fr;
+                    height: 70vh;
+                }
+
+                    .hero img:nth-child(2) {
+                        display: none;
+                    }
+            }
+    </style>
+    <script src="@Url.Content("~/js/theme.js")?v=2"></script>
 </head>
 <body>
 
@@ -35,6 +145,11 @@
         <a class="brand" href="/">TIRAZ</a>
 
         <div class="topbar-right">
+            <!-- wishlist (black heart) -->
+            <a class="icon-btn heart-btn" href="/Customer/Wishlist/Index" aria-label="Wishlist">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 2.7 4.5 6.4 4.5c2 0 3.6 1.1 4.6 2.7h2c1-1.6 2.6-2.7 4.6-2.7 3.7 0 5.5 3.8 4 7.2C19.5 16.4 12 21 12 21z" /></svg>
+            </a>
+
             <!-- cart button -->
             <button type="button" class="icon-btn" id="cartBtn"
                     aria-label="Open cart" aria-controls="cartPanel" aria-expanded="false">
@@ -106,223 +221,265 @@
         </div>
     </aside>
 
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+        <img src="@Url.Content("~/images/hero-1.webp")" alt="Leather effect jacket" />
+        <img src="@Url.Content("~/images/hero-2.webp")" alt="Light denim overshirt" />
+        <h2 class="hero-line">Stitched with intent</h2>
+    </section>
+
     <!-- ================= PRODUCTS ================= -->
-
     <!-- Filtration -->
-    <div class="shop">
+    <div class="shop" id="shop">
 
-    <aside class="sidebar">
-        <form class="filters" method="get" action="/">
-            <h2 class="filters-title">FILTER</h2>
+        <aside class="sidebar">
+            <form class="filters" method="get" action="/">
+                <h2 class="filters-title">FILTER</h2>
 
-            <label class="field">
-                <span>Name</span>
-                <input type="text" name="Name" placeholder="Product name" value="@ViewBag.Name" />
-            </label>
+                <label class="field">
+                    <span>Name</span>
+                    <input type="text" name="Name" placeholder="Product name" value="@ViewBag.Name" />
+                </label>
 
-            <div class="field">
-                <span>Price</span>
-                <div class="price-pair">
-                    <input type="number" name="MinPrice" placeholder="Min" min="0" value="@ViewBag.MinPrice" />
-                    <input type="number" name="MaxPrice" placeholder="Max" min="0" value="@ViewBag.MaxPrice" />
+                <div class="field">
+                    <span>Price</span>
+                    <div class="price-pair">
+                        <input type="number" name="MinPrice" placeholder="Min" min="0" value="@ViewBag.MinPrice" />
+                        <input type="number" name="MaxPrice" placeholder="Max" min="0" value="@ViewBag.MaxPrice" />
+                    </div>
                 </div>
-            </div>
 
-            <label class="field">
-                <span>Category</span>
-                <select name="CategoryId">
-                    <option value="0">All categories</option>
-                    @foreach (var c in (IEnumerable<Category>)ViewBag.Categories)
-                    {
-                        <option value="@c.CategoryId" selected="@(ViewBag.CategoryId == c.CategoryId)">@c.Name</option>
-                    }
-                </select>
-            </label>
-
-            <label class="field">
-                <span>Sort by</span>
-                <select name="Sort">
-                    <option value="">Default</option>
-                    <option value="low" selected="@(ViewBag.Sort == "low")">Price: Low to High</option>
-                    <option value="high" selected="@(ViewBag.Sort == "high")">Price: High to Low</option>
-                </select>
-            </label>
-
-            <label class="check">
-                <input type="checkbox" name="IsHot" value="true" checked="@(ViewBag.IsHot == true)" />
-                <span>On Sale</span>
-            </label>
-
-            <button type="submit" class="btn-filter">Filter</button>
-            <a href="/" class="btn-clear">Clear</a>
-        </form>
-    </aside>
-
-    <main class="page">
-        <div class="project-container">
-
-            @foreach(var item in Model)
-            {
-                    <!-- product card 1 -->
-                <div class="project project--1">
-                    <div class="preview-container">
-                        @{
-                            var urls = item.Images.OrderBy(i => i.ProductImageId).Select(i => i.Url).ToList();
-                            int[] slots = { 1, 0, 2 };   // the first image goes in the middle (highlighted) slot
+                <label class="field">
+                    <span>Category</span>
+                    <select name="CategoryId">
+                        <option value="0">All categories</option>
+                        @foreach (var c in (IEnumerable<Category>)ViewBag.Categories)
+                        {
+                            <option value="@c.CategoryId" selected="@(ViewBag.CategoryId == c.CategoryId)">@c.Name</option>
                         }
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Sort by</span>
+                    <select name="Sort">
+                        <option value="">Default</option>
+                        <option value="low" selected="@(ViewBag.Sort == "low")">Price: Low to High</option>
+                        <option value="high" selected="@(ViewBag.Sort == "high")">Price: High to Low</option>
+                    </select>
+                </label>
+
+                <label class="check">
+                    <input type="checkbox" name="IsHot" value="true" checked="@(ViewBag.IsHot == true)" />
+                    <span>On Sale</span>
+                </label>
+
+                <button type="submit" class="btn-filter">Filter</button>
+                <a href="/" class="btn-clear">Clear</a>
+            </form>
+        </aside>
+
+        <main class="page">
+            <div class="project-container">
+
+                @foreach (var item in Model)
+                {
+                    <!-- product card 1 -->
+                    <div class="project project--1">
                         <div class="preview-container">
-                            @foreach (var slot in slots)
-                            {
-                                <picture tabindex="0">
-                                    @if (urls.Count > 0)
-                                    {
-                                        <img src="@Url.Content(urls[slot % urls.Count])" alt="@item.Name" />
-                                    }
-                                    else
-                                    {
-                                        <div class="bg fabric-gray"></div>
-                                    }
-                                </picture>
+                            @{
+                                var urls = item.Images.OrderBy(i => i.ProductImageId).Select(i => i.Url).ToList();
+                                int[] slots = { 1, 0, 2 };   // the first image goes in the middle (highlighted) slot
                             }
+                            <div class="preview-container">
+                                @foreach (var slot in slots)
+                                {
+                                    <picture tabindex="0">
+                                        @if (urls.Count > 0)
+                                        {
+                                            <img src="@Url.Content(urls[slot % urls.Count])" alt="@item.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg fabric-gray"></div>
+                                        }
+                                    </picture>
+                                }
+                            </div>
+                        </div>
+                        <div class="content-container">
+                            <hgroup>
+                                <h1>@item.Name</h1>
+                                <p>@item.Description</p>
+                            </hgroup>
+                            <ul class="tag-container">
+                                @if (item.Discount > 0)
+                                {
+                                    <li class="tag price">@($"{item.Price - item.Price * item.Discount / 100:C2}")</li>
+                                    <li class="tag original-price">@($"{item.Price:C2}")</li>
+                                    <li class="tag discount">@($"{item.Discount}%")</li>
+                                }
+                                else
+                                {
+                                    <li class="tag price">@($"{item.Price:C2}")</li>
+                                }
+                                <li class="tag">@(categoryNames.GetValueOrDefault(item.CategoryId, "-"))</li>
+
+                                <li class="tag">@item.Material</li>
+                                @foreach (var s in item.Sizes.OrderBy(s => s.ProductSizeId))
+                                {
+                                    <li class="tag">@s.Size</li>
+                                }
+                                <a class="btn-details" href="@Url.Action("ProductDetails", "Home", new { area = "Customer", id = item.ProductId })">View Details</a>
+                            </ul>
+                            <form method="post" action="/Customer/Wishlist/Add" class="wish-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="btn-wish">&#9825; Add to Wishlist</button>
+                            </form>
                         </div>
                     </div>
-                    <div class="content-container">
-                        <hgroup>
-                            <h1>@item.Name</h1>
-                            <p>@item.Description</p>
-                        </hgroup>
-                        <ul class="tag-container">
-                            @if (item.Discount > 0)
-                            {
-                                <li class="tag price">@($"{item.Price - item.Price * item.Discount / 100:C2}")</li>
-                                <li class="tag original-price">@($"{item.Price:C2}")</li>
-                                <li class="tag discount">@($"{item.Discount}%")</li>
-                            }
-                            else
-                            {
-                                <li class="tag price">@($"{item.Price:C2}")</li>
-                            }
-                            <li class="tag">@(categoryNames.GetValueOrDefault(item.CategoryId, "-"))</li>
-                            
-                            <li class="tag">@item.Material</li>
-                            @foreach (var s in item.Sizes.OrderBy(s => s.ProductSizeId))
-                            {
-                                <li class="tag">@s.Size</li>
-                            }
-                             <a class="btn-details" href="@Url.Action("ProductDetails", "Home", new { area = "Customer", id = item.ProductId })">View Details</a>
-                        </ul>
-                    </div>
+                }
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer" id="about">
+        <div class="footer-inner">
+            <section class="footer-about">
+                <h2>ABOUT TIRAZ</h2>
+                <p>Write a short sentence about your brand here. Tell visitors who you are and what you make.</p>
+            </section>
+
+            <section class="footer-links">
+                <h3>Explore</h3>
+                <ul>
+                    <li>First item</li>
+                    <li>Second item</li>
+                    <li>Third item</li>
+                    <li>Fourth item</li>
+                </ul>
+            </section>
+
+            <section class="footer-social">
+                <h3>Follow us</h3>
+                <div class="social-icons">
+                    <a href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1" style="fill:currentColor;stroke:none" /></svg>
+                    </a>
+                    <a href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z" /></svg>
+                    </a>
                 </div>
-            }
+            </section>
         </div>
-    </main>
+        <p class="footer-copy">&copy; @DateTime.Now.Year TIRAZ. All rights reserved.</p>
+    </footer>
 
-</div>
+    <script>
+            (function () {
+                var body = document.body;
+                var overlay = document.getElementById("overlay");
 
-   
+                var profileBtn = document.getElementById("profileBtn");
+                var profileMenu = document.getElementById("profileMenu");
+                var profile = profileBtn.parentElement;
 
-   <script>
-    (function () {
-        var body = document.body;
-        var overlay = document.getElementById("overlay");
+                var panels = [
+                    { btn: document.getElementById("menuBtn"), el: document.getElementById("menuPanel") },
+                    { btn: document.getElementById("cartBtn"), el: document.getElementById("cartPanel") }
+                ];
 
-        var profileBtn = document.getElementById("profileBtn");
-        var profileMenu = document.getElementById("profileMenu");
-        var profile = profileBtn.parentElement;
+                // ----- profile dropdown -----
+                function setProfile(open) {
+                    profileMenu.classList.toggle("open", open);
+                    profileBtn.setAttribute("aria-expanded", open ? "true" : "false");
+                }
 
-        var panels = [
-            { btn: document.getElementById("menuBtn"), el: document.getElementById("menuPanel") },
-            { btn: document.getElementById("cartBtn"), el: document.getElementById("cartPanel") }
-        ];
+                profileBtn.addEventListener("click", function () {
+                    setProfile(!profileMenu.classList.contains("open"));
+                });
 
-        // ----- profile dropdown -----
-        function setProfile(open) {
-            profileMenu.classList.toggle("open", open);
-            profileBtn.setAttribute("aria-expanded", open ? "true" : "false");
-        }
+                document.addEventListener("click", function (e) {
+                    if (!profile.contains(e.target)) setProfile(false);
+                });
 
-        profileBtn.addEventListener("click", function () {
-            setProfile(!profileMenu.classList.contains("open"));
-        });
+                // ----- sidebars -----
+                function closePanels(returnFocus) {
+                    panels.forEach(function (p) {
+                        if (returnFocus && p.el.classList.contains("open")) p.btn.focus();
+                        p.el.classList.remove("open");
+                        p.el.setAttribute("aria-hidden", "true");
+                        p.btn.setAttribute("aria-expanded", "false");
+                    });
+                    overlay.classList.remove("show");
+                    body.classList.remove("no-scroll");
+                    body.style.paddingRight = "";
+                }
 
-        document.addEventListener("click", function (e) {
-            if (!profile.contains(e.target)) setProfile(false);
-        });
+                function openPanel(p) {
+                    setProfile(false);
+                    closePanels(false);
 
-        // ----- sidebars -----
-        function closePanels(returnFocus) {
-            panels.forEach(function (p) {
-                if (returnFocus && p.el.classList.contains("open")) p.btn.focus();
-                p.el.classList.remove("open");
-                p.el.setAttribute("aria-hidden", "true");
-                p.btn.setAttribute("aria-expanded", "false");
-            });
-            overlay.classList.remove("show");
-            body.classList.remove("no-scroll");
-            body.style.paddingRight = "";
-        }
+                    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
+                    if (scrollbar > 0) body.style.paddingRight = scrollbar + "px";
 
-        function openPanel(p) {
-            setProfile(false);
-            closePanels(false);
+                    p.el.classList.add("open");
+                    p.el.setAttribute("aria-hidden", "false");
+                    p.btn.setAttribute("aria-expanded", "true");
+                    overlay.classList.add("show");
+                    body.classList.add("no-scroll");
+                    p.el.querySelector("[data-close]").focus();
+                }
 
-            var scrollbar = window.innerWidth - document.documentElement.clientWidth;
-            if (scrollbar > 0) body.style.paddingRight = scrollbar + "px";
+                panels.forEach(function (p) {
+                    p.btn.addEventListener("click", function () { openPanel(p); });
+                    p.el.querySelector("[data-close]").addEventListener("click", function () { closePanels(true); });
+                });
 
-            p.el.classList.add("open");
-            p.el.setAttribute("aria-hidden", "false");
-            p.btn.setAttribute("aria-expanded", "true");
-            overlay.classList.add("show");
-            body.classList.add("no-scroll");
-            p.el.querySelector("[data-close]").focus();
-        }
+                overlay.addEventListener("click", function () { closePanels(true); });
 
-        panels.forEach(function (p) {
-            p.btn.addEventListener("click", function () { openPanel(p); });
-            p.el.querySelector("[data-close]").addEventListener("click", function () { closePanels(true); });
-        });
+                document.addEventListener("keydown", function (e) {
+                    if (e.key !== "Escape") return;
 
-        overlay.addEventListener("click", function () { closePanels(true); });
-
-        document.addEventListener("keydown", function (e) {
-            if (e.key !== "Escape") return;
-
-            if (profileMenu.classList.contains("open")) {
-                setProfile(false);
-                profileBtn.focus();
-            }
-            closePanels(true);
-        });
-
-        // ----- cart contents: load on open, refresh after Remove / Apply without closing -----
-        var cartBody = document.getElementById("cartBody");
-
-        function showCart(url, options) {
-            return fetch(url, options)
-                .then(function (r) {
-                    if (r.url.indexOf("/Identity/Account/Login") !== -1) {   // not logged in
-                        cartBody.innerHTML = '<p class="panel-empty">Please <a href="/Identity/Account/Login">log in</a> to see your cart.</p>';
-                        return null;
+                    if (profileMenu.classList.contains("open")) {
+                        setProfile(false);
+                        profileBtn.focus();
                     }
-                    return r.ok ? r.text() : Promise.reject();
-                })
-                .then(function (html) { if (html !== null) cartBody.innerHTML = html; })
-                .catch(function () { cartBody.innerHTML = '<p class="panel-empty">Could not load your cart.</p>'; });
-        }
+                    closePanels(true);
+                });
 
-        document.getElementById("cartBtn").addEventListener("click", function () {
-            showCart("/Customer/Cart/Index");
-        });
+                // ----- cart contents: load on open, refresh after Remove / Apply without closing -----
+                var cartBody = document.getElementById("cartBody");
 
-        cartBody.addEventListener("submit", function (e) {
-            e.preventDefault();
-            showCart(e.target.action, {
-                method: "POST",
-                body: new FormData(e.target),
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
-        });
-    })();
-</script>
+                function showCart(url, options) {
+                    return fetch(url, options)
+                        .then(function (r) {
+                            if (r.url.indexOf("/Identity/Account/Login") !== -1) {   // not logged in
+                                cartBody.innerHTML = '<p class="panel-empty">Please <a href="/Identity/Account/Login">log in</a> to see your cart.</p>';
+                                return null;
+                            }
+                            return r.ok ? r.text() : Promise.reject();
+                        })
+                        .then(function (html) { if (html !== null) cartBody.innerHTML = html; })
+                        .catch(function () { cartBody.innerHTML = '<p class="panel-empty">Could not load your cart.</p>'; });
+                }
+
+                document.getElementById("cartBtn").addEventListener("click", function () {
+                    showCart("/Customer/Cart/Index");
+                });
+
+                cartBody.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    showCart(e.target.action, {
+                        method: "POST",
+                        body: new FormData(e.target),
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                });
+            })();
+    </script>
 </body>
 </html>

@@ -14,6 +14,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@Model.Name - TIRAZ</title>
     <link rel="stylesheet" href="@Url.Content("~/css/home.css")?v=2" />
+    <style>
+            .wish-form {
+                margin: 12px 0 0;
+            }
+
+            .btn-wish {
+                height: 42px;
+                padding: 0 20px;
+                border: 1.5px solid #000;
+                border-radius: 999px;
+                background: transparent;
+                color: #000;
+                font: inherit;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background .15s, color .15s;
+            }
+
+                .btn-wish:hover {
+                    background: #000;
+                    color: #fff;
+                }
+
+            .heart-btn {
+                background: transparent;
+            }
+
+                .heart-btn svg path {
+                    fill: #000;
+                    stroke: #000;
+                    transition: fill .15s, stroke .15s;
+                }
+
+                .heart-btn:hover {
+                    background: #000;
+                }
+
+                    .heart-btn:hover svg path {
+                        fill: #fff;
+                        stroke: #fff;
+                    }
+    </style>
+    <script src="@Url.Content("~/js/theme.js")?v=2"></script>
 </head>
 <body>
 
@@ -29,6 +72,11 @@
         <a class="brand" href="/">TIRAZ</a>
 
         <div class="topbar-right">
+            <!-- wishlist (black heart) -->
+            <a class="icon-btn heart-btn" href="/Customer/Wishlist/Index" aria-label="Wishlist">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 2.7 4.5 6.4 4.5c2 0 3.6 1.1 4.6 2.7h2c1-1.6 2.6-2.7 4.6-2.7 3.7 0 5.5 3.8 4 7.2C19.5 16.4 12 21 12 21z" /></svg>
+            </a>
+
             <!-- cart button -->
             <button type="button" class="icon-btn" id="cartBtn"
                     aria-label="Open cart" aria-controls="cartPanel" aria-expanded="false">
@@ -150,40 +198,45 @@
                 <p class="description">@Model.Description</p>
             }
 
-           <form method="post" action="/Customer/Cart/AddToCart" id="cartForm">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="productId" value="@Model.ProductId" />
+            <form method="post" action="/Customer/Cart/AddToCart" id="cartForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.ProductId" />
 
-    <h2>Choose size &amp; color</h2>
-    @foreach (var size in Model.Sizes.OrderBy(s => s.ProductSizeId))
-    {
-        <div class="size-row">
-            <span class="size-name">@size.Size</span>
-            <div class="color-list">
-                @foreach (var color in size.Colors.OrderBy(c => c.ProductColorId))
+                <h2>Choose size &amp; color</h2>
+                @foreach (var size in Model.Sizes.OrderBy(s => s.ProductSizeId))
                 {
-                    <label class="color-chip @(color.Quantity == 0 ? "sold-out" : "")">
-                        <input type="radio" name="productColorId" value="@color.ProductColorId"
-                               data-stock="@color.Quantity" disabled="@(color.Quantity == 0)" />
-                        <span>@color.Color</span>
-                        @if (color.Quantity == 0)
-                        {
-                            <small>sold out</small>
-                        }
-                    </label>
+                    <div class="size-row">
+                        <span class="size-name">@size.Size</span>
+                        <div class="color-list">
+                            @foreach (var color in size.Colors.OrderBy(c => c.ProductColorId))
+                            {
+                                <label class="color-chip @(color.Quantity == 0 ? "sold-out" : "")">
+                                    <input type="radio" name="productColorId" value="@color.ProductColorId"
+                                           data-stock="@color.Quantity" disabled="@(color.Quantity == 0)" />
+                                    <span>@color.Color</span>
+                                    @if (color.Quantity == 0)
+                                    {
+                                        <small>sold out</small>
+                                    }
+                                </label>
+                            }
+                        </div>
+                    </div>
                 }
-            </div>
-        </div>
-    }
-    <form asp-action="AddToCart" asp-controller="Cart">
-        <div class="buy-row">
-            <input name="productId" value="@Model.ProductId" hidden/>
-            <input type="number" name="count" id="qty" value="1" min="1" max="1" aria-label="Quantity" />
-            <button type="submit" class="btn-cart">Add to Cart</button>
-        </div>
-    </form>
-    <p class="cart-msg" id="cartMsg"></p>
-</form>
+                <form asp-action="AddToCart" asp-controller="Cart">
+                    <div class="buy-row">
+                        <input name="productId" value="@Model.ProductId" hidden />
+                        <input type="number" name="count" id="qty" value="1" min="1" max="1" aria-label="Quantity" />
+                        <button type="submit" class="btn-cart">Add to Cart</button>
+                    </div>
+                </form>
+                <p class="cart-msg" id="cartMsg"></p>
+            </form>
+            <form method="post" action="/Customer/Wishlist/Add" class="wish-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.ProductId" />
+                <button type="submit" class="btn-wish">&#9825; Add to Wishlist</button>
+            </form>
         </section>
     </main>
 

@@ -1,0 +1,16 @@
+/* Footer for the Index page */
+.site-footer { margin-top: 48px; background: #fafafa; color: #000; border-top: 1px solid #e6e6e6; padding: 44px 20px 20px; }
+.footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
+.site-footer h2 { font-family: "Bowlby One", sans-serif; font-weight: 400; font-size: 1.5rem; margin: 0 0 10px; }
+.site-footer h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 12px; }
+.footer-about p { margin: 0; max-width: 46ch; line-height: 1.6; opacity: .75; }
+.footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; opacity: .75; }
+
+.social-icons { display: flex; gap: 10px; }
+.social-icons a { width: 42px; height: 42px; border: 1.5px solid #000; border-radius: 50%; display: grid; place-items: center; color: #000; transition: background .15s, color .15s; }
+.social-icons a:hover { background: #000; color: #fff; }
+.social-icons svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.footer-copy { max-width: 1200px; margin: 32px auto 0; padding-top: 16px; border-top: 1px solid #e6e6e6; font-size: .8rem; opacity: .55; text-align: center; }
+
+@media (max-width: 700px) { .footer-inner { grid-template-columns: 1fr; } }

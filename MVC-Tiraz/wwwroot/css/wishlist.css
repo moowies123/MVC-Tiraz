@@ -1,0 +1,35 @@
+/* Wishlist page – black & white, builds on home.css (navbar, panels) */
+.wl-page { max-width: 1200px; margin: 0 auto; padding: 32px 20px 64px; }
+
+.wl-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.wl-head h1 { font-family: "Bowlby One", sans-serif; font-weight: 400; font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 0; letter-spacing: .02em; }
+.wl-count { font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; opacity: .6; }
+
+.wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+
+.wl-card { background: #f2f2f2; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 28px rgba(0,0,0,.12); transition: transform .2s ease, box-shadow .2s ease; }
+.wl-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(0,0,0,.18); }
+
+.wl-photo { display: block; aspect-ratio: 4 / 5; background: #e2e2e2; }
+.wl-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wl-noimg { height: 100%; display: grid; place-items: center; font-family: "Bowlby One", sans-serif; font-size: 1.4rem; opacity: .25; }
+
+.wl-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.wl-cat { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; opacity: .55; }
+.wl-body h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.wl-price { display: flex; align-items: baseline; gap: 8px; }
+.wl-price strong { font-size: 1.1rem; }
+.wl-price s { opacity: .5; font-size: .9rem; }
+
+.wl-actions { margin-top: auto; padding-top: 12px; display: flex; gap: 8px; }
+.wl-actions form { margin: 0; }
+
+.wl-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 18px; border: 1.5px solid #000; border-radius: 999px; background: #000; color: #fff; font: inherit; font-size: .85rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; }
+.wl-btn:hover { background: #fff; color: #000; }
+.wl-btn-outline { background: transparent; color: #000; }
+.wl-btn-outline:hover { background: #000; color: #fff; }
+
+.wl-empty { text-align: center; background: #f2f2f2; border-radius: 22px; padding: 56px 20px; box-shadow: 0 10px 28px rgba(0,0,0,.12); }
+.wl-empty p { margin: 0 0 18px; font-size: 1.1rem; }
+
+@media (max-width: 480px) { .wl-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .wl-actions { flex-direction: column; } .wl-actions .wl-btn, .wl-actions form { width: 100%; } }

@@ -10,6 +10,7 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IRepository<Cart> _cartRepository;
+        private readonly IRepository<Models.TIRAZ.Models.Order> _orderRepository;
         private readonly IRepository<Promotion> _promotionRepository;
         private readonly IRepository<ProductColor> _colorRepository;
         private readonly IRepository<MVC_Tiraz.Models.TIRAZ.Models.Product> _productRepository;
@@ -20,13 +21,15 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
             IRepository<MVC_Tiraz.Models.TIRAZ.Models.Product> productRepository,
             UserManager<ApplicationUser> userManager,
             IRepository<ProductColor> colorRepository,
-            IRepository<Promotion> promotionRepository)
+            IRepository<Promotion> promotionRepository,
+            IRepository<Models.TIRAZ.Models.Order> orderRepository)
         {
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _userManager = userManager;
             _colorRepository = colorRepository;
             _promotionRepository = promotionRepository;
+            _orderRepository = orderRepository;
         }
 
         [Authorize]
@@ -253,8 +256,27 @@ namespace MVC_Tiraz.Areas.Customer.Controllers
             var carts = (await _cartRepository.GetAllIncludingAsync(
                 c => c.UserId == userId, includePaths: ["ProductColor"])).ToList();
 
+            // refreshing this page after the cart is already empty must not create another order
+            if (carts.Count == 0)
+                return RedirectToAction("Index", "Home", new { area = "Customer" });
+
             foreach (var item in carts)
                 item.ProductColor.Quantity = Math.Max(0, item.ProductColor.Quantity - item.Count);
+
+            // one Contains row per product (two colors of the same product are added together)
+            var order = new MVC_Tiraz.Models.TIRAZ.Models.Order
+            {
+                UserId = userId,
+                Date = DateTime.UtcNow,
+                Products = carts
+                    .GroupBy(c => c.ProductId)
+                    .Select(g => new MVC_Tiraz.Models.TIRAZ.Models.Contains
+                    {
+                        ProductId = g.Key,
+                        Quantity = g.Sum(c => c.Count)
+                    }).ToList()
+            };
+            await _orderRepository.AddAsync(order);
 
             await ConsumePromotionsAsync(carts);
 

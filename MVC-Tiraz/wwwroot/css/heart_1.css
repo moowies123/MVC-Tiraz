@@ -1,0 +1,11 @@
+
+/* wishlist heart: black normally, white on hover */
+.heart-btn { background: transparent; }
+.heart-btn svg path { fill: #000; stroke: #000; transition: fill .15s, stroke .15s; }
+.heart-btn:hover { background: #000; }
+.heart-btn:hover svg path { fill: #fff; stroke: #fff; }
+
+/* Add to Wishlist button */
+.wish-form { margin: 12px 0 0; }
+.btn-wish { height: 42px; padding: 0 20px; border: 1.5px solid #000; border-radius: 999px; background: transparent; color: #000; font: inherit; font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
+.btn-wish:hover { background: #000; color: #fff; }
